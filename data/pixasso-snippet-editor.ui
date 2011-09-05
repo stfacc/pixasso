@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <!-- interface-requires gtk+ 3.0 -->
+  <object class="GtkScrolledWindow" id="scrolledwindow">
+    <property name="visible">True</property>
+    <property name="can_focus">True</property>
+    <property name="shadow_type">in</property>
+    <property name="vexpand">true</property>
+    <property name="hexpand">true</property>
+    <child>
+      <object class="GtkTextView" id="latex-textview">
+	<property name="visible">True</property>
+	<property name="can_focus">True</property>
+	<property name="wrap_mode">word-char</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkToolbar" id="textview-toolbar">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="toolbar_style">icons</property>
+    <style>
+      <class name="inline-toolbar"/>
+    </style>
+    <child>
+      <object class="GtkToolItem" id="toolitem-style-combo">
+	<property name="visible">True</property>
+	<property name="can_focus">False</property>
+	<property name="use_action_appearance">False</property>
+	<child>
+	  <placeholder/>
+	</child>
+      </object>
+      <packing>
+	<property name="expand">False</property>
+	<property name="homogeneous">True</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkToolItem" id="toolbutton2">
+	<property name="visible">True</property>
+	<property name="can_focus">False</property>
+	<property name="use_action_appearance">False</property>
+	<child>
+	  <object class="GtkLabel" id="label1">
+	    <property name="visible">True</property>
+	    <property name="can_focus">False</property>
+	    <property name="label" translatable="yes">Font:</property>
+	  </object>
+	</child>
+      </object>
+      <packing>
+	<property name="expand">False</property>
+	<property name="homogeneous">True</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkToolItem" id="toolbutton3">
+	<property name="visible">True</property>
+	<property name="can_focus">False</property>
+	<property name="use_action_appearance">False</property>
+	<child>
+	  <object class="GtkEntry" id="font-entry">
+	    <property name="visible">True</property>
+	    <property name="can_focus">True</property>
+	    <property name="invisible_char">●</property>
+	    <property name="width_chars">4</property>
+	  </object>
+	</child>
+      </object>
+      <packing>
+	<property name="expand">False</property>
+	<property name="homogeneous">True</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkToolItem" id="toolbutton4">
+	<property name="visible">True</property>
+	<property name="can_focus">False</property>
+	<property name="use_action_appearance">False</property>
+	<child>
+	  <object class="GtkColorButton" id="colorbutton1">
+	    <property name="visible">True</property>
+	    <property name="can_focus">True</property>
+	    <property name="receives_default">True</property>
+	    <property name="use_action_appearance">False</property>
+	    <property name="relief">none</property>
+	  </object>
+	</child>
+      </object>
+      <packing>
+	<property name="expand">False</property>
+	<property name="homogeneous">True</property>
+      </packing>
+    </child>
+  </object>
+</interface>
