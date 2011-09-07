@@ -47,7 +47,7 @@ public:
     Cairo::RefPtr<Cairo::Surface> cached_surface;
     
     bool generated;
-    void generate ();
+    int generate ();
 
     static const char *style_prefix[];
     static const char *style_suffix[];
@@ -64,6 +64,11 @@ const char *PixassoSnippet::Private::style_suffix[] = { "\\]",   // DISPLAY
                                                       };
 
 const char *PixassoSnippet::LatexStyleLabel[] = { "Display", "Inline", "Text" };
+
+
+
+static PopplerPage *poppler_page_get_first_from_file (char *path);
+
 
 // Create a PixassoSnippet from various latex data
 PixassoSnippet::PixassoSnippet (Glib::ustring p,
@@ -128,12 +133,16 @@ PixassoSnippet::get_height ()
     return RESOLUTION_SCALE * height;
 }
 
-void
+int
 PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
 {
     double real_scale;
 
-    priv->generate ();
+    int err = priv->generate ();
+
+    if (err)
+        return err;
+
     // FIXME: poppler_page_render does not honor cairo clipping,
     // so we need a cairo surface as intermediate step
 
@@ -155,6 +164,8 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
 
     cr->set_source (priv->cached_surface, 0, 0);
     cr->paint ();
+
+    return 0;
 }
 
 void
@@ -186,12 +197,10 @@ PixassoSnippet::get_data_dir ()
     return priv->data_dir;
 }
 
-void
+int
 PixassoSnippet::Private::generate ()
 {
     Glib::ustring latex_full;
-
-    PopplerDocument *doc;
 
     GFile *source_file;
     GFile *dest_file;
@@ -201,7 +210,7 @@ PixassoSnippet::Private::generate ()
     char *s;
 
     if (generated)
-        return;
+        return 0;
     
     if (preamble_name == "default") {
         latex_full =
@@ -221,11 +230,10 @@ PixassoSnippet::Private::generate ()
     
     source_path = g_build_filename (g_get_current_dir (), PDF_FILENAME, NULL);
 
-    s = g_filename_to_uri (source_path, NULL, NULL);
-    doc = poppler_document_new_from_file (s, NULL, NULL);
-    poppler_page = poppler_document_get_page (doc, 0);
-    g_object_unref (doc);
-    g_free (s);
+    poppler_page = poppler_page_get_first_from_file (source_path);
+
+    if (!poppler_page)
+        return -1;
     
     s = g_build_filename (data_dir, PDF_FILENAME, NULL);
     source_file = g_file_new_for_path (source_path);
@@ -239,4 +247,37 @@ PixassoSnippet::Private::generate ()
     g_free (s);
 
     generated = true;
+
+    return 0;
+}
+
+static PopplerPage *
+poppler_page_get_first_from_file (char *path)
+{
+    PopplerDocument *doc;
+    PopplerPage *page;
+    GError *error = NULL;
+    char *s;
+
+    s = g_filename_to_uri (path, NULL, &error);
+
+    if (error) {
+        g_print ("Error: %s\n", error->message);
+        g_error_free (error);
+        return NULL;
+    }
+
+    doc = poppler_document_new_from_file (s, NULL, &error);
+    g_free (s);
+
+    if (error) {
+        g_print ("Error: %s\n", error->message);
+        g_error_free (error);
+        return NULL;
+    }
+
+    page = poppler_document_get_page (doc, 0);
+    g_object_unref (doc);
+
+    return page;
 }

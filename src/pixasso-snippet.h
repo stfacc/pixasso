@@ -47,7 +47,7 @@ public:
 
     double get_width ();
     double get_height ();
-    void render (Cairo::RefPtr<Cairo::Context>, double);
+    int render (Cairo::RefPtr<Cairo::Context>, double);
 private:
     class Private;
     Private *priv;
