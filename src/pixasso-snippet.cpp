@@ -30,8 +30,9 @@
 #include <poppler.h>
 
 
-#define PDF_BASENAME "a"
 #define PDF_FILENAME "a.pdf"
+#define LATEX_FILENAME "a.tex"
+#define LATEX_BODY_FILENAME "b.tex"
 
 class PixassoSnippet::Private {
 public:
@@ -77,20 +78,28 @@ PixassoSnippet::PixassoSnippet (Glib::ustring p,
     : priv (new Private ())
 {
     gchar *s;
+    GError *error = NULL;
 
     if (p != "default")
         g_error ("Preamble %s does not exist", p.data ());
+    priv->preamble_name = p;
 
     s = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
-
     if (!mkdtemp (s))
 	g_error ("Cache directory cannot be created");
-
     priv->data_dir = s;
-    priv->preamble_name = p;
+
     priv->latex_body = l;
+    s = g_build_filename (priv->data_dir, LATEX_BODY_FILENAME, NULL);
+    if (!g_file_set_contents (s, priv->latex_body.c_str (), -1, &error)) {
+        g_print ("Error writing " LATEX_BODY_FILENAME ": %s\n", error->message);
+        g_free (s);
+        throw Glib::FileError (error);
+        g_error_free (error);
+    }
+    g_free (s);
+
     priv->style = style;
-    
     priv->cached_zoom_factor = -1;
 
     priv->generate ();
@@ -101,7 +110,21 @@ PixassoSnippet::PixassoSnippet (Glib::ustring d)
     : priv (new Private ())
 {
     char *s;
+    char *tmp;
+    GError *error =NULL;
+
     priv->data_dir = g_strdup (d.c_str ());
+
+    s = g_build_filename (priv->data_dir, LATEX_BODY_FILENAME, NULL);
+    if (!g_file_get_contents (s, &tmp, NULL, &error)) {
+        g_print ("Error reading " LATEX_BODY_FILENAME ": %s\n", error->message);
+        g_free (s);
+        throw Glib::FileError (error);
+        g_error_free (error);
+    }
+    priv->latex_body = Glib::ustring (tmp);
+    g_free (tmp);
+    g_free (s);
 
     s = g_build_filename (priv->data_dir, PDF_FILENAME, NULL);
     priv->poppler_page = poppler_page_get_first_from_file (s);
@@ -223,24 +246,30 @@ PixassoSnippet::Private::generate ()
     char *dest_path;
     char *s;
 
+    GError *error = NULL;
+
     if (generated)
         return 0;
     
     if (preamble_name == "default") {
         latex_full =
-            "'\\documentclass{article}"
+            "\\documentclass{article}"
             "\\pagestyle{empty}"
             "\\begin{document} " +
             Glib::ustring (style_prefix[style]) +
             latex_body +
             Glib::ustring (style_suffix[style]) +
-            "\\end{document}'";
+            "\\end{document}";
     }
 
-    s = g_strdup_printf ("pdflatex -halt-on-error -jobname " PDF_BASENAME " %s", latex_full.c_str ());
-    g_spawn_command_line_sync (s, NULL, NULL, NULL, NULL);
+    if (!g_file_set_contents (LATEX_FILENAME, latex_full.c_str (), -1, &error)) {
+        g_print ("Error: %s\n", error->message);
+        g_error_free (error);
+        return -1;
+    }
+    
+    g_spawn_command_line_sync ("pdflatex -halt-on-error '\\input " LATEX_FILENAME "'", NULL, NULL, NULL, NULL);
     g_spawn_command_line_sync ("pdfcrop " PDF_FILENAME " " PDF_FILENAME, NULL, NULL, NULL, NULL);
-    g_free (s);
     
     source_path = g_build_filename (g_get_current_dir (), PDF_FILENAME, NULL);
 
