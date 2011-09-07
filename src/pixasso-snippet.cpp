@@ -98,7 +98,17 @@ PixassoSnippet::PixassoSnippet (Glib::ustring p,
 
 // Create a PixassoSnippet from a directory name
 PixassoSnippet::PixassoSnippet (Glib::ustring d)
+    : priv (new Private ())
 {
+    char *s;
+    priv->data_dir = g_strdup (d.c_str ());
+
+    s = g_build_filename (priv->data_dir, PDF_FILENAME, NULL);
+    priv->poppler_page = poppler_page_get_first_from_file (s);
+    g_free (s);
+
+    if (priv->poppler_page)
+        priv->generated = true;
 }
 
 // Remove data directory if it is empty
