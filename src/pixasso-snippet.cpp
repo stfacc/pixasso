@@ -93,7 +93,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring p,
     
     priv->cached_zoom_factor = -1;
 
-    //priv->generate ();
+    priv->generate ();
 }
 
 // Create a PixassoSnippet from a directory name
@@ -148,10 +148,8 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
 {
     double real_scale;
 
-    int err = priv->generate ();
-
-    if (err)
-        return err;
+    if (!priv->generated)
+        return -1;
 
     // FIXME: poppler_page_render does not honor cairo clipping,
     // so we need a cairo surface as intermediate step
@@ -205,6 +203,12 @@ Glib::ustring
 PixassoSnippet::get_data_dir ()
 {
     return priv->data_dir;
+}
+
+bool
+PixassoSnippet::is_generated ()
+{
+    return priv->generated;
 }
 
 int

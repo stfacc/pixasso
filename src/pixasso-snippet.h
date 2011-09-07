@@ -47,6 +47,7 @@ public:
 
     double get_width ();
     double get_height ();
+    bool is_generated ();
     int render (Cairo::RefPtr<Cairo::Context>, double);
 private:
     class Private;
