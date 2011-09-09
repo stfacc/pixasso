@@ -76,12 +76,12 @@ PixassoPreview::setup_preview ()
     widget->get_style_context ()->add_class ("inline-toolbar");
     widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_TOP);
     Gtk::ToolButton *tb;
-    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_IN));
-    ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
-                                                           &PixassoPreview::set_zoom_in));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_OUT));
     ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
                                                            &PixassoPreview::set_zoom_out));
+    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_IN));
+    ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
+                                                           &PixassoPreview::set_zoom_in));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_100));
     ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
                                                            &PixassoPreview::set_zoom_100));
