@@ -88,6 +88,7 @@ PixassoPreview::setup_preview ()
     zoom_label = new Gtk::Label ();
     Gtk::ToolItem *ti = new Gtk::ToolItem ();
     ti->add (*zoom_label);
+    ti->set_margin_left (6);
     ((Gtk::Toolbar *) widget)->append (*ti);
     
     widget->show_all ();
