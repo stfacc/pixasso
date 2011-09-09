@@ -33,6 +33,7 @@ public:
     PixassoSnippetEditor ();
 
     PixassoSnippet *create_snippet ();
+    void fill_with_snippet (PixassoSnippet *);
 
 private:    
     Gtk::TextView *textView;

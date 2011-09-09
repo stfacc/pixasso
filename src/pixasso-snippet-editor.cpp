@@ -70,3 +70,9 @@ PixassoSnippetEditor::create_snippet ()
 
     return snippet;
 }
+
+void
+PixassoSnippetEditor::fill_with_snippet (PixassoSnippet *snippet)
+{
+    textView->get_buffer ()->set_text (snippet->get_latex_body ());
+}
