@@ -189,7 +189,12 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
         context->set_source_rgb (1, 1, 1);
         context->paint ();
         context->scale (real_scale, real_scale);
-        poppler_page_render (priv->poppler_page, context->cobj ());
+        try {
+            poppler_page_render (priv->poppler_page, context->cobj ());
+        } catch (...) {
+            g_warning ("Error: poppler couldn't render the PDF");
+            return -1;
+        }
         priv->cached_zoom_factor = zoom_factor;
     }
 
