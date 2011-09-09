@@ -40,10 +40,6 @@ public:
     void set_zoom_100 ();
     double get_zoom_factor ();
 
-    //signal accessor:
-    //typedef sigc::signal<void, double> type_signal_zoom_factor_changed;
-    //type_signal_zoom_factor_changed signal_zoom_factor_changed ();
-
 private:
     class Area;
     Area *area;
@@ -51,10 +47,6 @@ private:
     Gtk::Label *zoom_label;
     void setup_preview ();
     bool on_event_cb (GdkEvent *);
-
-protected:
-    //type_signal_zoom_factor_changed m_signal_zoom_factor_changed;
 };
 
 #endif
-

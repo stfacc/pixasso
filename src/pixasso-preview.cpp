@@ -102,13 +102,7 @@ PixassoPreview::~PixassoPreview ()
 {
     delete area;
 }
-/*
-PixassoPreview::type_signal_zoom_factor_changed
-PixassoPreview::signal_zoom_factor_changed ()
-{
-    return m_signal_zoom_factor_changed;
-}
-*/
+
 void
 PixassoPreview::set_snippet (PixassoSnippet *s)
 {
@@ -127,7 +121,6 @@ PixassoPreview::set_zoom_factor (double factor)
 {
     area->zoom_factor = factor;
     zoom_label->set_text (Glib::ustring::format (std::fixed, std::setprecision (0), factor * 100) + "%");
-    //m_signal_zoom_factor_changed.emit (factor);
     area->queue_resize ();
 }
 
@@ -145,7 +138,6 @@ PixassoPreview::set_zoom_out ()
 {
     set_zoom_factor (get_zoom_factor () / PIXASSO_PREVIEW_ZOOM_STEP_FACTOR);
 }
-
 
 void
 PixassoPreview::set_zoom_100 ()
