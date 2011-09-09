@@ -28,10 +28,10 @@
 class PixassoSnippet {
 public:
     typedef enum {
-	DISPLAY = 0,
-	INLINE,
-	TEXT,
-	N_LATEX_STYLE
+        DISPLAY = 0,
+        INLINE,
+        TEXT,
+        N_LATEX_STYLE
     } LatexStyle;
 
     static const char *LatexStyleLabel [];

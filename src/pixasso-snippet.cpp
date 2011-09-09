@@ -86,7 +86,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring p,
 
     s = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
     if (!mkdtemp (s))
-	g_error ("Cache directory cannot be created");
+        g_error ("Cache directory cannot be created");
     priv->data_dir = s;
 
     priv->latex_body = l;
@@ -111,7 +111,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring d)
 {
     char *s;
     char *tmp;
-    GError *error =NULL;
+    GError *error = NULL;
 
     priv->data_dir = g_strdup (d.c_str ());
 
