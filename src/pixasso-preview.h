@@ -44,7 +44,7 @@ private:
     class Area;
     Area *area;
 
-    Gtk::Label *zoom_label;
+    Gtk::Label zoom_label;
     void setup_preview ();
     bool on_event_cb (GdkEvent *);
 };

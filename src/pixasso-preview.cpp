@@ -85,9 +85,8 @@ PixassoPreview::setup_preview ()
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_100));
     ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
                                                            &PixassoPreview::set_zoom_100));
-    zoom_label = new Gtk::Label ();
     Gtk::ToolItem *ti = new Gtk::ToolItem ();
-    ti->add (*zoom_label);
+    ti->add (zoom_label);
     ti->set_margin_left (6);
     ((Gtk::Toolbar *) widget)->append (*ti);
     
@@ -120,7 +119,7 @@ void
 PixassoPreview::set_zoom_factor (double factor)
 {
     area->zoom_factor = factor;
-    zoom_label->set_text (Glib::ustring::format (std::fixed, std::setprecision (0), factor * 100) + "%");
+    zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), factor * 100) + "%");
     area->queue_resize ();
 }
 
