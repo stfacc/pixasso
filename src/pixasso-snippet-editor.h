@@ -32,7 +32,7 @@ class PixassoSnippetEditor : public Gtk::Grid {
 public:
     PixassoSnippetEditor ();
 
-    PixassoSnippet *get_snippet ();
+    PixassoSnippet *create_snippet ();
 
 private:    
     Gtk::TextView *textView;

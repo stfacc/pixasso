@@ -61,7 +61,7 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 }
 
 PixassoSnippet *
-PixassoSnippetEditor::get_snippet ()
+PixassoSnippetEditor::create_snippet ()
 {
     PixassoSnippet *snippet;
     snippet = new PixassoSnippet ("default",

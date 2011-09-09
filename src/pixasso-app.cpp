@@ -88,7 +88,7 @@ PixassoApp::on_apply_button_clicked ()
     if (current_snippet)
         delete current_snippet;
 
-    current_snippet = snippet_editor->get_snippet ();
+    current_snippet = snippet_editor->create_snippet ();
 
     preview->set_snippet (current_snippet);
 }
