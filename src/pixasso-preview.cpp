@@ -169,7 +169,6 @@ PixassoPreview::on_event_cb (GdkEvent *e)
         break;
     }
     g_debug ("ZOOM: %f", get_zoom_factor ());
-    area->queue_resize ();
     
     return true;
 }
