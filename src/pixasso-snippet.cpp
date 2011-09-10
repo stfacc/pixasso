@@ -40,7 +40,7 @@ public:
     Glib::ustring latex_body;
     time_t creation_time;
     int format;
-    char *data_dir;
+    Glib::ustring data_dir;
     LatexStyle style;
 
     double cached_zoom_factor;
@@ -50,54 +50,64 @@ public:
     bool generated;
     int generate ();
 
-    static const char *style_prefix[];
-    static const char *style_suffix[];
+    static const Glib::ustring style_prefix[];
+    static const Glib::ustring style_suffix[];
 };
 
-const char *PixassoSnippet::Private::style_prefix[] = { "\\[",   // DISPLAY
-                                                        "$",     // INLINE
-                                                        ""       // TEXT
-                                                      };
+const Glib::ustring
+PixassoSnippet::Private::style_prefix[] =
+    {
+        "\\[",   // DISPLAY
+        "$",     // INLINE
+        ""       // TEXT
+    };
 
-const char *PixassoSnippet::Private::style_suffix[] = { "\\]",   // DISPLAY
-                                                        "$",     // INLINE
-                                                        ""       // TEXT
-                                                      };
+const Glib::ustring
+PixassoSnippet::Private::style_suffix[] =
+    {
+        "\\]",   // DISPLAY
+        "$",     // INLINE
+        ""       // TEXT
+    };
 
-const char *PixassoSnippet::LatexStyleLabel[] = { "Display", "Inline", "Text" };
+const Glib::ustring
+PixassoSnippet::LatexStyleLabel[] =
+    {
+        "Display",
+        "Inline",
+        "Text"
+    };
 
 
-
-static PopplerPage *poppler_page_get_first_from_file (char *path);
+static PopplerPage *poppler_page_get_first_from_file (Glib::ustring path);
 
 
 // Create a PixassoSnippet from various latex data
-PixassoSnippet::PixassoSnippet (Glib::ustring p,
-                                Glib::ustring l,
+PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
+                                Glib::ustring latex_body,
                                 LatexStyle style)
     : priv (new Private ())
 {
-    gchar *s;
-    GError *error = NULL;
+    gchar *data_dir_cstr;
+    Glib::ustring filename;
 
-    if (p != "default")
-        g_error ("Preamble %s does not exist", p.data ());
-    priv->preamble_name = p;
+    if (preamble_name != "default")
+        g_error ("Preamble %s does not exist", preamble_name.c_str ());
+    priv->preamble_name = preamble_name;
 
-    s = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
-    if (!mkdtemp (s))
+    data_dir_cstr = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
+    if (!mkdtemp (data_dir_cstr))
         g_error ("Cache directory cannot be created");
-    priv->data_dir = s;
+    priv->data_dir = Glib::ustring (data_dir_cstr);
+    g_free (data_dir_cstr);
 
-    priv->latex_body = l;
-    s = g_build_filename (priv->data_dir, LATEX_BODY_FILENAME, NULL);
-    if (!g_file_set_contents (s, priv->latex_body.c_str (), -1, &error)) {
-        g_print ("Error writing " LATEX_BODY_FILENAME ": %s\n", error->message);
-        g_free (s);
-        throw Glib::FileError (error);
-        g_error_free (error);
+    priv->latex_body = latex_body;
+    filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
+    try {
+        Glib::file_set_contents (filename, priv->latex_body);
+    } catch (Glib::Exception &e) {
+        g_error ("Error writing " LATEX_BODY_FILENAME);
     }
-    g_free (s);
 
     priv->style = style;
     priv->cached_zoom_factor = -1;
@@ -106,30 +116,24 @@ PixassoSnippet::PixassoSnippet (Glib::ustring p,
 }
 
 // Create a PixassoSnippet from a directory name
-PixassoSnippet::PixassoSnippet (Glib::ustring d)
+PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
     : priv (new Private ())
 {
-    char *s;
-    char *tmp;
-    GError *error = NULL;
+    Glib::ustring filename;
 
-    priv->data_dir = g_strdup (d.c_str ());
+    priv->data_dir = dir_name;
 
-    s = g_build_filename (priv->data_dir, LATEX_BODY_FILENAME, NULL);
-    if (!g_file_get_contents (s, &tmp, NULL, &error)) {
-        g_print ("Error reading " LATEX_BODY_FILENAME ": %s\n", error->message);
-        g_free (s);
-        throw Glib::FileError (error);
-        g_error_free (error);
+    filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
+    try {
+        priv->latex_body = Glib::file_get_contents (filename);
+    } catch (Glib::Exception &e) {
+        g_error ("Error reading " LATEX_BODY_FILENAME);
     }
-    priv->latex_body = Glib::ustring (tmp);
-    g_free (tmp);
-    g_free (s);
 
-    s = g_build_filename (priv->data_dir, PDF_FILENAME, NULL);
-    priv->poppler_page = poppler_page_get_first_from_file (s);
-    g_free (s);
+    filename = Glib::build_filename (priv->data_dir, PDF_FILENAME);
+    priv->poppler_page = poppler_page_get_first_from_file (filename);
 
+    // FIXME: do we always expect to find a PDF cached file?
     if (priv->poppler_page)
         priv->generated = true;
 }
@@ -140,11 +144,10 @@ PixassoSnippet::~PixassoSnippet ()
     Glib::RefPtr<Gio::File> f = Gio::File::create_for_path (priv->data_dir);
     try {
         f->remove ();
-    } catch (const Glib::Exception& ex) {
-        std::cerr << "Exception caught: " << ex.what() << std::endl;
+    } catch (const Glib::Exception& e) {
+        std::cerr << "Exception caught: " << e.what() << std::endl;
     }
 
-    g_free (priv->data_dir);
     delete priv;
 }
     
@@ -192,7 +195,7 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
         try {
             poppler_page_render (priv->poppler_page, context->cobj ());
         } catch (...) {
-            g_warning ("Error: poppler couldn't render the PDF");
+            g_critical ("Poppler couldn't render the PDF");
             return -1;
         }
         priv->cached_zoom_factor = zoom_factor;
@@ -243,15 +246,8 @@ int
 PixassoSnippet::Private::generate ()
 {
     Glib::ustring latex_full;
-
-    GFile *source_file;
-    GFile *dest_file;
-    
-    char *source_path;
-    char *dest_path;
-    char *s;
-
-    GError *error = NULL;
+    Glib::ustring source_path;
+    Glib::RefPtr<Gio::File> source_file;
 
     if (generated)
         return 0;
@@ -261,38 +257,32 @@ PixassoSnippet::Private::generate ()
             "\\documentclass{article}"
             "\\pagestyle{empty}"
             "\\begin{document} " +
-            Glib::ustring (style_prefix[style]) +
+            style_prefix[style] +
             latex_body +
-            Glib::ustring (style_suffix[style]) +
+            style_suffix[style] +
             "\\end{document}";
     }
 
-    if (!g_file_set_contents (LATEX_FILENAME, latex_full.c_str (), -1, &error)) {
-        g_print ("Error: %s\n", error->message);
-        g_error_free (error);
+    try {
+        Glib::file_set_contents (LATEX_FILENAME, latex_full);
+    } catch (...) {
+        g_critical ("Cannot write: " LATEX_FILENAME);
         return -1;
     }
     
     g_spawn_command_line_sync ("pdflatex -halt-on-error '\\input " LATEX_FILENAME "'", NULL, NULL, NULL, NULL);
     g_spawn_command_line_sync ("pdfcrop " PDF_FILENAME " " PDF_FILENAME, NULL, NULL, NULL, NULL);
     
-    source_path = g_build_filename (g_get_current_dir (), PDF_FILENAME, NULL);
+    source_path = Glib::build_filename (Glib::get_current_dir (), PDF_FILENAME);
 
     poppler_page = poppler_page_get_first_from_file (source_path);
 
     if (!poppler_page)
         return -1;
-    
-    s = g_build_filename (data_dir, PDF_FILENAME, NULL);
-    source_file = g_file_new_for_path (source_path);
-    dest_file = g_file_new_for_path (s);
-    
-    g_file_move (source_file, dest_file, G_FILE_COPY_NONE, NULL, NULL, NULL, NULL);
 
-    g_object_unref (source_file);
-    g_object_unref (dest_file);    
-    g_free (source_path);
-    g_free (s);
+    source_file = Gio::File::create_for_path (source_path);
+    source_file->move (Gio::File::create_for_path (Glib::build_filename (data_dir, PDF_FILENAME)),
+                       Gio::FILE_COPY_NONE);
 
     generated = true;
 
@@ -300,23 +290,14 @@ PixassoSnippet::Private::generate ()
 }
 
 static PopplerPage *
-poppler_page_get_first_from_file (char *path)
+poppler_page_get_first_from_file (Glib::ustring path)
 {
     PopplerDocument *doc;
     PopplerPage *page;
     GError *error = NULL;
-    char *s;
+    Glib::ustring fileuri = Glib::filename_to_uri (path);
 
-    s = g_filename_to_uri (path, NULL, &error);
-
-    if (error) {
-        g_print ("Error: %s\n", error->message);
-        g_error_free (error);
-        return NULL;
-    }
-
-    doc = poppler_document_new_from_file (s, NULL, &error);
-    g_free (s);
+    doc = poppler_document_new_from_file (fileuri.c_str (), NULL, &error);
 
     if (error) {
         g_print ("Error: %s\n", error->message);

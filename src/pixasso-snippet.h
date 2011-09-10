@@ -34,10 +34,10 @@ public:
         N_LATEX_STYLE
     } LatexStyle;
 
-    static const char *LatexStyleLabel [];
+    static const Glib::ustring LatexStyleLabel[];
     
-    PixassoSnippet (Glib::ustring p, Glib::ustring l, LatexStyle);
-    PixassoSnippet (Glib::ustring d);
+    PixassoSnippet (Glib::ustring, Glib::ustring, LatexStyle);
+    PixassoSnippet (Glib::ustring);
     ~PixassoSnippet ();
     void set_export_format ();
     Glib::ustring get_latex_body ();
