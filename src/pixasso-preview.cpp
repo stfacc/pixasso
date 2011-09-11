@@ -30,7 +30,7 @@
 class PixassoPreview::Area
     : public Gtk::DrawingArea {
 public:
-    PixassoSnippet *snippet;
+    Glib::RefPtr<PixassoSnippet> snippet;
     double zoom_factor;
 
 protected:
@@ -47,11 +47,11 @@ PixassoPreview::PixassoPreview ()
     clear ();
 }
 
-PixassoPreview::PixassoPreview (PixassoSnippet *s)
+PixassoPreview::PixassoPreview (Glib::RefPtr<PixassoSnippet> &snippet)
     : area (new Area ())
 {
     setup_preview ();
-    set_snippet (s);
+    set_snippet (snippet);
 }
 
 void
@@ -103,16 +103,16 @@ PixassoPreview::~PixassoPreview ()
 }
 
 void
-PixassoPreview::set_snippet (PixassoSnippet *s)
+PixassoPreview::set_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
-    area->snippet = s;
+    area->snippet = snippet;
     area->queue_resize ();
 }
 
 void
 PixassoPreview::clear ()
 {
-    set_snippet (NULL);
+    area->snippet.reset ();
 }
 
 void

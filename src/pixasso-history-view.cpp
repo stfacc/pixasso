@@ -60,7 +60,7 @@ PixassoHistoryView::get_treeview ()
 void
 PixassoHistoryView::on_row_selected ()
 {
-    PixassoSnippet *snippet;
+    Glib::RefPtr<PixassoSnippet> snippet;
     (*m_TreeView.get_selection ()->get_selected ()).get_value (0, snippet);
     g_debug ("Selected snippet: %s", snippet->get_latex_body ().c_str ());
 }
@@ -69,7 +69,7 @@ void
 PixassoHistoryView::on_row_activated (const Gtk::TreeModel::Path& path,
                                       Gtk::TreeViewColumn* /* column */)
 {
-    PixassoSnippet *snippet;
+    Glib::RefPtr<PixassoSnippet> snippet;
     (*m_TreeView.get_model ()->get_iter (path)).get_value (0, snippet);
     g_debug ("Activated snippet: %s", snippet->get_latex_body ().c_str ());
 }
@@ -78,7 +78,7 @@ void
 PixassoHistoryView::cell_data_func (Gtk::CellRenderer *cell,
                                     const Gtk::TreeModel::iterator &iter)
 {
-    PixassoSnippet *snippet;
+    Glib::RefPtr<PixassoSnippet> snippet;
     (*iter).get_value (0, snippet);
     ((Gtk::CellRendererText *) cell)->property_text () = snippet->get_latex_body ();
 }

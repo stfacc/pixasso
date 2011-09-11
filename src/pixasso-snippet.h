@@ -22,10 +22,12 @@
 #ifndef PIXASSO_SNIPPET_H
 #define PIXASSO_SNIPPET_H
 
+#include <glibmm/object.h>
 #include <glibmm/ustring.h>
 #include <cairomm/context.h>
 
-class PixassoSnippet {
+class PixassoSnippet : public Glib::Object
+{
 public:
     typedef enum {
         DISPLAY = 0,

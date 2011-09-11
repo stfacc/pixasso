@@ -62,19 +62,16 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
     ((Gtk::Container *) widget)->add (*styleCombo);
 }
 
-PixassoSnippet *
+Glib::RefPtr<PixassoSnippet>
 PixassoSnippetEditor::create_snippet ()
 {
-    PixassoSnippet *snippet;
-    snippet = new PixassoSnippet ("default",
-				  textView->get_buffer ()->get_text (),
-				  styleCombo->get_active_style ());
-
-    return snippet;
+    return Glib::RefPtr<PixassoSnippet> (new PixassoSnippet ("default",
+                                                             textView->get_buffer ()->get_text (),
+                                                             styleCombo->get_active_style ()));
 }
 
 void
-PixassoSnippetEditor::fill_with_snippet (PixassoSnippet *snippet)
+PixassoSnippetEditor::fill_with_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
     textView->get_buffer ()->set_text (snippet->get_latex_body ());
 }

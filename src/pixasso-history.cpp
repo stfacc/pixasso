@@ -38,8 +38,12 @@ PixassoHistory::PixassoHistory ()
     populate ();
 }
 
+PixassoHistory::~PixassoHistory ()
+{
+}
+
 void
-PixassoHistory::prepend_snippet (PixassoSnippet *snippet)
+PixassoHistory::prepend_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
     g_debug ("Creating history element %s: %s --- %fx%f",
              snippet->get_data_dir ().c_str (),
@@ -58,13 +62,14 @@ PixassoHistory::populate ()
     Glib::ustring path = Glib::build_filename (user_data_dir, PACKAGE);
     Glib::Dir dir (path);
 
-    PixassoSnippet *snippet;
+    Glib::RefPtr<PixassoSnippet> snippet;
+    Glib::ustring filename;
 
     Glib::DirIterator i;
     for (i = dir.begin (); i != dir.end (); i++) {
         try {
-            Glib::ustring filename = Glib::build_filename (user_data_dir, PACKAGE, *i);
-            snippet = new PixassoSnippet (filename);
+            filename = Glib::build_filename (user_data_dir, PACKAGE, *i);
+            snippet = Glib::RefPtr<PixassoSnippet> (new PixassoSnippet (filename));
             prepend_snippet (snippet);
         } catch (std::exception &e) {
             std::cerr << "Error creating history element: " << e.what () << std::endl;

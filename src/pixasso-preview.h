@@ -30,9 +30,9 @@
 class PixassoPreview : public Gtk::Grid {
 public:
     PixassoPreview ();
-    PixassoPreview (PixassoSnippet *);
+    PixassoPreview (Glib::RefPtr<PixassoSnippet> &);
     ~PixassoPreview ();
-    void set_snippet (PixassoSnippet *);
+    void set_snippet (Glib::RefPtr<PixassoSnippet> &);
     void clear ();
     void set_zoom_factor (double);
     void set_zoom_in ();

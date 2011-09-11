@@ -32,7 +32,8 @@ class PixassoHistory : public Gtk::ListStore
 {
 public:
     PixassoHistory ();
-    void prepend_snippet (PixassoSnippet *snippet);
+    ~PixassoHistory ();
+    void prepend_snippet (Glib::RefPtr<PixassoSnippet> &snippet);
 
 protected:
     void populate ();
@@ -43,7 +44,7 @@ protected:
         ModelColumns()
         { add (m_Snippet); }
 
-        Gtk::TreeModelColumn<PixassoSnippet *> m_Snippet;
+        Gtk::TreeModelColumn< Glib::RefPtr<PixassoSnippet> > m_Snippet;
     };
 
     ModelColumns m_Columns;
