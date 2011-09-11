@@ -48,7 +48,7 @@ public:
     Cairo::RefPtr<Cairo::Surface> cached_surface;
     
     bool generated;
-    int generate ();
+    void generate ();
 
     static const Glib::ustring style_prefix[];
     static const Glib::ustring style_suffix[];
@@ -91,23 +91,25 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
     gchar *data_dir_cstr;
     Glib::ustring filename;
 
-    if (preamble_name != "default")
-        g_error ("Preamble %s does not exist", preamble_name.c_str ());
+    g_debug ("PixassoSnippet: creating snippet from data");
+
+    if (preamble_name != "default") {
+        throw std::runtime_error ("PixassoSnippet: preamble '" + preamble_name + "' does not exist");
+    }
     priv->preamble_name = preamble_name;
 
     data_dir_cstr = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
-    if (!mkdtemp (data_dir_cstr))
-        g_error ("Cache directory cannot be created");
+    if (!mkdtemp (data_dir_cstr)) {
+        throw std::runtime_error ("PixassoSnippet: cache directory cannot be created");
+    } else {
+        g_debug ("PixassoSnippet: creating cache directory %s", data_dir_cstr);
+    }
     priv->data_dir = Glib::ustring (data_dir_cstr);
     g_free (data_dir_cstr);
 
     priv->latex_body = latex_body;
     filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
-    try {
-        Glib::file_set_contents (filename, priv->latex_body);
-    } catch (Glib::Exception &e) {
-        g_error ("Error writing " LATEX_BODY_FILENAME);
-    }
+    Glib::file_set_contents (filename, priv->latex_body);
 
     priv->style = style;
     priv->cached_zoom_factor = -1;
@@ -121,14 +123,12 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
 {
     Glib::ustring filename;
 
+    g_debug ("PixassoSnippet: creating snippet from directory %s", dir_name.c_str ());
+
     priv->data_dir = dir_name;
 
     filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
-    try {
-        priv->latex_body = Glib::file_get_contents (filename);
-    } catch (Glib::Exception &e) {
-        g_error ("Error reading " LATEX_BODY_FILENAME);
-    }
+    priv->latex_body = Glib::file_get_contents (filename);
 
     filename = Glib::build_filename (priv->data_dir, PDF_FILENAME);
     priv->poppler_page = poppler_page_get_first_from_file (filename);
@@ -136,6 +136,8 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
     // FIXME: do we always expect to find a PDF cached file?
     if (priv->poppler_page)
         priv->generated = true;
+    else
+        throw std::runtime_error ("PixassoSnippet: poppler_page is NULL");
 }
 
 // Remove data directory if it is empty
@@ -169,13 +171,12 @@ PixassoSnippet::get_height ()
     return RESOLUTION_SCALE * height;
 }
 
-int
+void
 PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
 {
     double real_scale;
 
-    if (!priv->generated)
-        return -1;
+    g_return_if_fail (priv->generated);
 
     // FIXME: poppler_page_render does not honor cairo clipping,
     // so we need a cairo surface as intermediate step
@@ -192,19 +193,13 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
         context->set_source_rgb (1, 1, 1);
         context->paint ();
         context->scale (real_scale, real_scale);
-        try {
-            poppler_page_render (priv->poppler_page, context->cobj ());
-        } catch (...) {
-            g_critical ("Poppler couldn't render the PDF");
-            return -1;
-        }
+        poppler_page_render (priv->poppler_page, context->cobj ());
+
         priv->cached_zoom_factor = zoom_factor;
     }
 
     cr->set_source (priv->cached_surface, 0, 0);
     cr->paint ();
-
-    return 0;
 }
 
 void
@@ -242,7 +237,7 @@ PixassoSnippet::is_generated ()
     return priv->generated;
 }
 
-int
+void
 PixassoSnippet::Private::generate ()
 {
     Glib::ustring latex_full;
@@ -250,7 +245,7 @@ PixassoSnippet::Private::generate ()
     Glib::RefPtr<Gio::File> source_file;
 
     if (generated)
-        return 0;
+        return;
     
     if (preamble_name == "default") {
         latex_full =
@@ -263,12 +258,7 @@ PixassoSnippet::Private::generate ()
             "\\end{document}";
     }
 
-    try {
-        Glib::file_set_contents (LATEX_FILENAME, latex_full);
-    } catch (...) {
-        g_critical ("Cannot write: " LATEX_FILENAME);
-        return -1;
-    }
+    Glib::file_set_contents (LATEX_FILENAME, latex_full);
     
     g_spawn_command_line_sync ("pdflatex -halt-on-error '\\input " LATEX_FILENAME "'", NULL, NULL, NULL, NULL);
     g_spawn_command_line_sync ("pdfcrop " PDF_FILENAME " " PDF_FILENAME, NULL, NULL, NULL, NULL);
@@ -278,15 +268,13 @@ PixassoSnippet::Private::generate ()
     poppler_page = poppler_page_get_first_from_file (source_path);
 
     if (!poppler_page)
-        return -1;
+        throw std::runtime_error ("PixassoSnippet: poppler_page is NULL");
 
     source_file = Gio::File::create_for_path (source_path);
     source_file->move (Gio::File::create_for_path (Glib::build_filename (data_dir, PDF_FILENAME)),
                        Gio::FILE_COPY_NONE);
 
     generated = true;
-
-    return 0;
 }
 
 static PopplerPage *
@@ -300,7 +288,7 @@ poppler_page_get_first_from_file (Glib::ustring path)
     doc = poppler_document_new_from_file (fileuri.c_str (), NULL, &error);
 
     if (error) {
-        g_print ("Error: %s\n", error->message);
+        g_critical ("PixassoSnippet: error in poppler_page_get_first_from file: %s\n", error->message);
         g_error_free (error);
         return NULL;
     }

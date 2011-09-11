@@ -27,6 +27,7 @@
 #include "pixasso-snippet.h"
 
 #include <gtkmm.h>
+#include <iostream>
 
 
 PixassoSnippetEditor::PixassoSnippetEditor ()
@@ -38,7 +39,8 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
         refBuilder = Gtk::Builder::create_from_file (Glib::build_filename (DATADIR, PACKAGE,
                                                                            "pixasso-snippet-editor.ui"));
     } catch (Glib::FileError &e) {
-        g_error (e.what ().c_str ());
+        std::cerr << e.what () << std::endl;
+        exit (EXIT_FAILURE);
     }
 
     refBuilder->get_widget ("latex-textview", textView);
