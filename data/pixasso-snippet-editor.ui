@@ -18,7 +18,6 @@
   <object class="GtkToolbar" id="textview-toolbar">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="toolbar_style">icons</property>
     <style>
       <class name="inline-toolbar"/>
     </style>
