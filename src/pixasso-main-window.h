@@ -1,4 +1,4 @@
-/* -*- indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- Mode: c++; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /*
  * Copyright (C) 2011 Stefano Facchini <stefano.facchini@gmail.com>
  *
@@ -19,25 +19,34 @@
  *
  */
 
-#include <config.h>
+#ifndef PIXASSO_MAIN_WINDOW_H
+#define PIXASSO_MAIN_WINDOW_H
 
-#include "pixasso-main-window.h"
-#include "pixasso-utils.h"
+#include "pixasso-history-view.h"
+#include "pixasso-preview.h"
+#include "pixasso-snippet.h"
+#include "pixasso-snippet-editor.h"
 
-#include <gtkmm.h>
+#include <gtkmm/window.h>
 
 
-int main (int argc, char **argv)
+class PixassoMainWindow : public Gtk::Window
 {
-    Glib::ustring tmpdir;
-    Gtk::Main kit (argc, argv);
+public:
+    PixassoMainWindow ();
+    ~PixassoMainWindow ();
 
-    tmpdir = Pixasso::create_tmpdir ();
-    chdir (tmpdir.c_str ());
-    g_debug ("Working in: %s", tmpdir.c_str ());
+private:
+    Glib::RefPtr<PixassoHistory> history;
 
-    PixassoMainWindow window;
-    kit.run (window);
+    PixassoSnippetEditor *snippet_editor;
+    PixassoPreview *preview;
+    PixassoHistoryView *history_view;
 
-    Pixasso::remove_dir (tmpdir);
-}
+protected:
+    void on_history_row_activated (const Gtk::TreeModel::Path&,
+                                   Gtk::TreeViewColumn*);
+    void on_apply_button_clicked ();
+};
+
+#endif

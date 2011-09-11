@@ -19,31 +19,37 @@
  *
  */
 
-#ifndef PIXASSO_APP_H
-#define PIXASSO_APP_H
+#include <config.h>
 
-#include "pixasso-preview.h"
-#include "pixasso-snippet.h"
-#include "pixasso-snippet-editor.h"
+#include "pixasso-utils.h"
 
-#include <gtkmm.h>
+#include <giomm/file.h>
+#include <glibmm/fileutils.h>
+#include <glibmm/ustring.h>
 
 
-class PixassoApp {
-public:
-    PixassoApp (int, char **);
-    ~PixassoApp ();
+Glib::ustring
+Pixasso::create_tmpdir ()
+{
+    char *dir_cstr = g_build_filename (g_get_tmp_dir (), PACKAGE "XXXXXX", NULL);
+    Glib::ustring dir;
 
-private:
-    char *tmpdir;
+    if (!mkdtemp (dir_cstr))
+        throw std::runtime_error ("Cannot create temporary files");
+    dir = Glib::ustring (dir_cstr);
+    g_free (dir_cstr);
 
-    Gtk::Window *mainWindow;
-    PixassoSnippet *current_snippet;
-    PixassoSnippetEditor *snippet_editor;
-    PixassoPreview *preview;
+    return dir;
+}
 
-protected:
-    void on_apply_button_clicked ();
-};
+void
+Pixasso::remove_dir (Glib::ustring dir_name)
+{
+    Glib::Dir dir (dir_name);
 
-#endif
+    Glib::DirIterator i;
+    for (i = dir.begin (); i != dir.end (); i++)
+        Gio::File::create_for_path (Glib::build_filename (dir_name, *i))->remove ();
+
+    Gio::File::create_for_path (dir_name)->remove ();
+}

@@ -1,45 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
-  <object class="GtkWindow" id="main_window">
+  <object class="GtkGrid" id="grid1">
+    <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="border_width">10</property>
-    <property name="default_width">800</property>
-    <property name="default_height">400</property>
     <child>
-      <object class="GtkBox" id="box1">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="orientation">horizontal</property>
-        <child>
-	  <object class="GtkBox" id="box2">
-	    <property name="visible">True</property>
-	    <property name="can_focus">False</property>
-	    <property name="orientation">vertical</property>
-	    <child>
-	      <placeholder/>
-	    </child>
-	    <child>
-	      <object class="GtkButton" id="apply_button">
-		<property name="label" translatable="yes">Apply</property>
-		<property name="visible">True</property>
-		<property name="can_focus">True</property>
-		<property name="receives_default">True</property>
-		<property name="use_action_appearance">False</property>
-	      </object>
-	      <packing>
-		<property name="expand">False</property>
-		<property name="fill">True</property>
-		<property name="padding">0</property>
-		<property name="position">4</property>
-	      </packing>
-	    </child>
-	  </object>
-	</child>
-	<child>
-	  <placeholder/>
-	</child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkButton" id="apply-button">
+	<property name="label" translatable="yes">Apply</property>
+	<property name="visible">True</property>
+	<property name="can_focus">True</property>
+	<property name="receives_default">True</property>
+	<property name="use_action_appearance">False</property>
       </object>
+      <packing>
+	<property name="left_attach">0</property>
+	<property name="top_attach">1</property>
+	<property name="width">1</property>
+	<property name="height">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkButton" id="history-button">
+	<property name="label" translatable="yes">History</property>
+	<property name="visible">True</property>
+	<property name="can_focus">True</property>
+	<property name="receives_default">True</property>
+	<property name="use_action_appearance">False</property>
+      </object>
+      <packing>
+	<property name="left_attach">1</property>
+	<property name="top_attach">1</property>
+	<property name="width">1</property>
+	<property name="height">1</property>
+      </packing>
     </child>
   </object>
 </interface>

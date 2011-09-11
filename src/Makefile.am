@@ -5,12 +5,12 @@ INCLUDES = \
 
 pixasso_SOURCES = \
 	main.cpp			\
-	pixasso-app.cpp			\
-	pixasso-app.h			\
 	pixasso-history.cpp		\
 	pixasso-history.h		\
 	pixasso-history-view.cpp	\
 	pixasso-history-view.h		\
+	pixasso-main-window.cpp		\
+	pixasso-main-window.h		\
 	pixasso-misc-widgets.cpp	\
 	pixasso-misc-widgets.h		\
 	pixasso-preview.cpp		\
@@ -18,7 +18,9 @@ pixasso_SOURCES = \
 	pixasso-snippet.cpp		\
 	pixasso-snippet.h		\
 	pixasso-snippet-editor.cpp	\
-	pixasso-snippet-editor.h
+	pixasso-snippet-editor.h	\
+	pixasso-utils.cpp		\
+	pixasso-utils.h
 
 pixasso_CPPFLAGS = \
 	$(GTK_CFLAGS)		\

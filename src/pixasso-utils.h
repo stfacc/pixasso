@@ -1,4 +1,4 @@
-/* -*- indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- Mode: c++; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /*
  * Copyright (C) 2011 Stefano Facchini <stefano.facchini@gmail.com>
  *
@@ -19,25 +19,15 @@
  *
  */
 
-#include <config.h>
+#ifndef PIXASSO_UTILS_H
+#define PIXASSO_UTILS_H
 
-#include "pixasso-main-window.h"
-#include "pixasso-utils.h"
-
-#include <gtkmm.h>
+#include <glibmm/ustring.h>
 
 
-int main (int argc, char **argv)
-{
-    Glib::ustring tmpdir;
-    Gtk::Main kit (argc, argv);
-
-    tmpdir = Pixasso::create_tmpdir ();
-    chdir (tmpdir.c_str ());
-    g_debug ("Working in: %s", tmpdir.c_str ());
-
-    PixassoMainWindow window;
-    kit.run (window);
-
-    Pixasso::remove_dir (tmpdir);
+namespace Pixasso {
+    Glib::ustring create_tmpdir ();
+    void remove_dir (Glib::ustring);
 }
+
+#endif
