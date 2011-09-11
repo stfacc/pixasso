@@ -41,6 +41,8 @@ public:
     PixassoSnippet (Glib::ustring, Glib::ustring, LatexStyle);
     PixassoSnippet (Glib::ustring);
     ~PixassoSnippet ();
+    void set_remove_data_on_delete (bool);
+    
     void set_export_format ();
     Glib::ustring get_latex_body ();
     Glib::ustring get_preamble_name ();

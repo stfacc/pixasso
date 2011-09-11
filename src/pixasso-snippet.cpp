@@ -23,6 +23,8 @@
 
 #include "pixasso-snippet.h"
 
+#include "pixasso-utils.h"
+
 #include <cairomm/context.h>
 #include <iostream>
 #include <giomm/file.h>
@@ -49,6 +51,8 @@ public:
     
     bool generated;
     void generate ();
+
+    bool remove_data_on_delete;
 
     static const Glib::ustring style_prefix[];
     static const Glib::ustring style_suffix[];
@@ -93,6 +97,8 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
 
     g_debug ("PixassoSnippet: creating snippet from data");
 
+    priv->remove_data_on_delete = false;
+
     if (preamble_name != "default") {
         throw std::runtime_error ("PixassoSnippet: preamble '" + preamble_name + "' does not exist");
     }
@@ -125,6 +131,8 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
 
     g_debug ("PixassoSnippet: creating snippet from directory %s", dir_name.c_str ());
 
+    priv->remove_data_on_delete = false;
+
     priv->data_dir = dir_name;
 
     filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
@@ -140,19 +148,22 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
         throw std::runtime_error ("PixassoSnippet: poppler_page is NULL");
 }
 
-// Remove data directory if it is empty
 PixassoSnippet::~PixassoSnippet ()
 {
-    Glib::RefPtr<Gio::File> f = Gio::File::create_for_path (priv->data_dir);
-    try {
-        f->remove ();
-    } catch (const Glib::Exception& e) {
-        std::cerr << "Exception caught: " << e.what() << std::endl;
+    if (priv->remove_data_on_delete) {
+        g_debug ("PixassoSnippet: deleting %s", priv->data_dir.c_str ());
+        Pixasso::remove_dir (priv->data_dir);
     }
 
     delete priv;
 }
     
+void
+PixassoSnippet::set_remove_data_on_delete (bool remove)
+{
+    priv->remove_data_on_delete = remove;
+}
+
 #define RESOLUTION_SCALE (96.0 / 72.0)
 
 double
