@@ -62,7 +62,7 @@ PixassoPreview::setup_preview ()
     widget = new Gtk::ScrolledWindow ();
     ((Gtk::ScrolledWindow *) widget)->add (*area);
     widget->signal_event ().connect (sigc::mem_fun (*this,
-                                                &PixassoPreview::on_event_cb));
+                                                    &PixassoPreview::on_event_cb));
 
     widget->set_vexpand (true);
     widget->set_hexpand (true);

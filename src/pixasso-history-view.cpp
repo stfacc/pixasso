@@ -31,15 +31,11 @@
 
 PixassoHistoryView::PixassoHistoryView (Glib::RefPtr<PixassoHistory> &history)
 {
-    add (m_TreeView);
-    m_TreeView.set_model (history);
-
     Gtk::CellRendererText *cell = Gtk::manage (new Gtk::CellRendererText ());
     Gtk::TreeView::Column *column = Gtk::manage (new Gtk::TreeView::Column ("Snippet", *cell));
     column->set_cell_data_func (*cell, sigc::mem_fun (*this, &PixassoHistoryView::cell_data_func)); 
 
     m_TreeView.append_column (*column);
-
 
     m_TreeView.signal_cursor_changed ().connect (sigc::mem_fun (*this,
                                                                 &PixassoHistoryView::on_row_selected));
@@ -47,7 +43,11 @@ PixassoHistoryView::PixassoHistoryView (Glib::RefPtr<PixassoHistory> &history)
     m_TreeView.signal_row_activated ().connect (sigc::mem_fun (*this,
                                                                 &PixassoHistoryView::on_row_activated));
 
+    m_TreeView.set_model (history);
+
     set_shadow_type (Gtk::SHADOW_IN);
+    add (m_TreeView);
+
     show_all_children ();
 }
 
