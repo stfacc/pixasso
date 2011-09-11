@@ -7,6 +7,10 @@ pixasso_SOURCES = \
 	main.cpp			\
 	pixasso-app.cpp			\
 	pixasso-app.h			\
+	pixasso-history.cpp		\
+	pixasso-history.h		\
+	pixasso-history-view.cpp	\
+	pixasso-history-view.h		\
 	pixasso-misc-widgets.cpp	\
 	pixasso-misc-widgets.h		\
 	pixasso-preview.cpp		\
