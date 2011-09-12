@@ -71,7 +71,7 @@ PixassoHistory::populate ()
             filename = Glib::build_filename (user_data_dir, PACKAGE, *i);
             snippet = Glib::RefPtr<PixassoSnippet> (new PixassoSnippet (filename));
             prepend_snippet (snippet);
-        } catch (std::exception &e) {
+        } catch (Glib::Exception &e) {
             std::cerr << "Error creating history element: " << e.what () << std::endl;
         }
     }
