@@ -47,6 +47,7 @@ protected:
     void on_history_row_activated (const Gtk::TreeModel::Path&,
                                    Gtk::TreeViewColumn*);
     void on_apply_button_clicked ();
+    void on_clear_button_clicked ();
 };
 
 #endif

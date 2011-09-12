@@ -33,6 +33,11 @@ PixassoMathModeCombo::PixassoMathModeCombo ()
          i != PixassoSnippet::math_mode_map.end ();
          i++)
         append (i->first);
+}
+
+void
+PixassoMathModeCombo::set_default ()
+{
     set_active_text (PixassoSnippet::math_mode_map.begin ()->first);
 }
 

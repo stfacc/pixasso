@@ -47,7 +47,6 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 
     refBuilder->get_widget ("latex-textview", textView);
     refBuilder->get_widget ("font-entry", fontEntry);
-    fontEntry->set_text (DEFAULT_FONT_SIZE);
     
     refBuilder->get_widget ("scrolledwindow", widget);
     widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_BOTTOM);
@@ -63,6 +62,16 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
     mathModeCombo->show ();
     refBuilder->get_widget ("toolitem-style-combo", widget);
     ((Gtk::Container *) widget)->add (*mathModeCombo);
+
+    set_default ();
+}
+
+void
+PixassoSnippetEditor::set_default ()
+{
+    textView->get_buffer ()->set_text ("");
+    fontEntry->set_text (DEFAULT_FONT_SIZE);
+    mathModeCombo->set_default ();
 }
 
 Glib::RefPtr<PixassoSnippet>

@@ -113,6 +113,7 @@ void
 PixassoPreview::clear ()
 {
     area->snippet.reset ();
+    area->queue_draw ();
 }
 
 void

@@ -31,7 +31,7 @@
 class PixassoSnippetEditor : public Gtk::Grid {
 public:
     PixassoSnippetEditor ();
-
+    void set_default ();
     Glib::RefPtr<PixassoSnippet> create_snippet ();
     void fill_with_snippet (Glib::RefPtr<PixassoSnippet> &);
 

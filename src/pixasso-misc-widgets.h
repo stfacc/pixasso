@@ -29,6 +29,7 @@
 class PixassoMathModeCombo : public Gtk::ComboBoxText {
 public:
     PixassoMathModeCombo ();
+    void set_default ();
     Glib::ustring get_active_math_mode ();
 };
 

@@ -69,9 +69,16 @@ PixassoMainWindow::PixassoMainWindow ()
                                                                                    &PixassoMainWindow::on_history_row_activated));
 
     refBuilder->get_widget ("apply-button", widget);
+    widget->set_hexpand (true);
     ((Gtk::Button *) widget)->
         signal_clicked ().connect (sigc::mem_fun (*this,
                                                   &PixassoMainWindow::on_apply_button_clicked));
+
+    refBuilder->get_widget ("clear-button", widget);
+    widget->set_hexpand (true);
+    ((Gtk::Button *) widget)->
+        signal_clicked ().connect (sigc::mem_fun (*this,
+                                                  &PixassoMainWindow::on_clear_button_clicked));
 }
 
 PixassoMainWindow::~PixassoMainWindow ()
@@ -104,4 +111,11 @@ PixassoMainWindow::on_apply_button_clicked ()
     } catch (std::exception &e) {
         std::cerr << "Error: " << e.what () << std::endl;
     }
+}
+
+void
+PixassoMainWindow::on_clear_button_clicked ()
+{
+    snippet_editor->set_default ();
+    preview->clear ();
 }
