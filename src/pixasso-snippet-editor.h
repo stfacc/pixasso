@@ -38,7 +38,7 @@ public:
 private:    
     Gtk::TextView *textView;
     Gtk::Entry *fontEntry;
-    PixassoLatexStyleCombo *styleCombo;
+    PixassoMathModeCombo *mathModeCombo;
 };
 
 #endif

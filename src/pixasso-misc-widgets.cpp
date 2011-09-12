@@ -19,20 +19,32 @@
  *
  */
 
-#include <gtkmm/comboboxtext.h>
-
 #include "pixasso-misc-widgets.h"
+
 #include "pixasso-snippet.h"
 
-PixassoLatexStyleCombo::PixassoLatexStyleCombo ()
+#include <gtkmm/comboboxtext.h>
+
+
+PixassoMathModeCombo::PixassoMathModeCombo ()
 {
-    for (int i = 0; i < PixassoSnippet::N_LATEX_STYLE; i++)
-        append (PixassoSnippet::LatexStyleLabel[i]);
-    set_active (0);
+    PixassoSnippet::MathModeMap::iterator i;
+    for (i = PixassoSnippet::math_mode_map.begin ();
+         i != PixassoSnippet::math_mode_map.end ();
+         i++)
+        append (i->first);
+    set_active_text (PixassoSnippet::math_mode_map.begin ()->first);
 }
 
-PixassoSnippet::LatexStyle
-PixassoLatexStyleCombo::get_active_style ()
+Glib::ustring
+PixassoMathModeCombo::get_active_math_mode ()
 {
-    return (PixassoSnippet::LatexStyle) get_active_row_number ();
+    // Should just be:
+    //   return get_active_text ();
+    // which does not work because of a bug in GTK 3.0
+
+    Gtk::TreeRow row = *(get_active ());
+    Glib::ustring s;
+    row.get_value (0, s);
+    return s;
 }

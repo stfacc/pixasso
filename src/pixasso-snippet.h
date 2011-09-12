@@ -25,27 +25,29 @@
 #include <glibmm/object.h>
 #include <glibmm/ustring.h>
 #include <cairomm/context.h>
+#include <map>
 
 class PixassoSnippet : public Glib::Object
 {
 public:
-    typedef enum {
-        DISPLAY = 0,
-        INLINE,
-        TEXT,
-        N_LATEX_STYLE
-    } LatexStyle;
+    typedef struct {
+        Glib::ustring prefix;
+        Glib::ustring suffix;
+    } MathMode;
 
-    static const Glib::ustring LatexStyleLabel[];
-    
-    PixassoSnippet (Glib::ustring, Glib::ustring, LatexStyle);
+    typedef std::map<Glib::ustring, MathMode> MathModeMap;
+
+    static MathModeMap math_mode_map;
+
+    PixassoSnippet (Glib::ustring, Glib::ustring, Glib::ustring);
     PixassoSnippet (Glib::ustring);
     ~PixassoSnippet ();
     void set_remove_data_on_delete (bool);
-    
+
     void set_export_format ();
     Glib::ustring get_latex_body ();
     Glib::ustring get_preamble_name ();
+    Glib::ustring get_math_mode ();
     time_t get_creation_time ();
     Glib::ustring get_data_dir ();
 

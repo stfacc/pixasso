@@ -26,10 +26,10 @@
 
 #include "pixasso-snippet.h"
 
-class PixassoLatexStyleCombo : public Gtk::ComboBoxText {
+class PixassoMathModeCombo : public Gtk::ComboBoxText {
 public:
-    PixassoLatexStyleCombo ();
-    PixassoSnippet::LatexStyle get_active_style ();
+    PixassoMathModeCombo ();
+    Glib::ustring get_active_math_mode ();
 };
 
 #endif

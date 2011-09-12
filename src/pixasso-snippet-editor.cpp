@@ -56,10 +56,10 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 
     attach (*widget, 0, 1, 1, 1);
     
-    styleCombo = new PixassoLatexStyleCombo ();
-    styleCombo->show ();
+    mathModeCombo = new PixassoMathModeCombo ();
+    mathModeCombo->show ();
     refBuilder->get_widget ("toolitem-style-combo", widget);
-    ((Gtk::Container *) widget)->add (*styleCombo);
+    ((Gtk::Container *) widget)->add (*mathModeCombo);
 }
 
 Glib::RefPtr<PixassoSnippet>
@@ -67,7 +67,7 @@ PixassoSnippetEditor::create_snippet ()
 {
     return Glib::RefPtr<PixassoSnippet> (new PixassoSnippet ("default",
                                                              textView->get_buffer ()->get_text (),
-                                                             styleCombo->get_active_style ()));
+                                                             mathModeCombo->get_active_math_mode ()));
 }
 
 void

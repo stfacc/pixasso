@@ -43,7 +43,7 @@ public:
     time_t creation_time;
     int format;
     Glib::ustring data_dir;
-    LatexStyle style;
+    Glib::ustring math_mode;
 
     double cached_zoom_factor;
     PopplerPage *poppler_page;
@@ -53,35 +53,23 @@ public:
     void generate ();
 
     bool remove_data_on_delete;
-
-    static const Glib::ustring style_prefix[];
-    static const Glib::ustring style_suffix[];
 };
 
-const Glib::ustring
-PixassoSnippet::Private::style_prefix[] =
-    {
-        "\\[",   // DISPLAY
-        "$",     // INLINE
-        ""       // TEXT
-    };
+static PixassoSnippet::MathModeMap
+create_math_mode_map ()
+{
+    PixassoSnippet::MathModeMap m;
+    m["Display"].prefix = "\\[";
+    m["Display"].suffix = "\\]";
+    m["Inline"].prefix = "\\(";
+    m["Inline"].suffix = "\\)";
+    m["Text"].prefix = "";
+    m["Text"].suffix = "";
+    return m;
+}
 
-const Glib::ustring
-PixassoSnippet::Private::style_suffix[] =
-    {
-        "\\]",   // DISPLAY
-        "$",     // INLINE
-        ""       // TEXT
-    };
-
-const Glib::ustring
-PixassoSnippet::LatexStyleLabel[] =
-    {
-        "Display",
-        "Inline",
-        "Text"
-    };
-
+PixassoSnippet::MathModeMap
+PixassoSnippet::math_mode_map = create_math_mode_map ();
 
 static PopplerPage *poppler_page_get_first_from_file (Glib::ustring path);
 
@@ -89,7 +77,7 @@ static PopplerPage *poppler_page_get_first_from_file (Glib::ustring path);
 // Create a PixassoSnippet from various latex data
 PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
                                 Glib::ustring latex_body,
-                                LatexStyle style)
+                                Glib::ustring math_mode)
     : priv (new Private ())
 {
     gchar *data_dir_cstr;
@@ -117,7 +105,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
     filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
     Glib::file_set_contents (filename, priv->latex_body);
 
-    priv->style = style;
+    priv->math_mode = math_mode;
     priv->cached_zoom_factor = -1;
 
     priv->generate ();
@@ -230,6 +218,12 @@ PixassoSnippet::get_preamble_name ()
     return priv->preamble_name;
 }
 
+Glib::ustring
+PixassoSnippet::get_math_mode ()
+{
+    return priv->math_mode;
+}
+
 time_t
 PixassoSnippet::get_creation_time ()
 {
@@ -263,9 +257,9 @@ PixassoSnippet::Private::generate ()
             "\\documentclass{article}"
             "\\pagestyle{empty}"
             "\\begin{document} " +
-            style_prefix[style] +
+            math_mode_map[math_mode].prefix +
             latex_body +
-            style_suffix[style] +
+            math_mode_map[math_mode].suffix +
             "\\end{document}";
     }
 
