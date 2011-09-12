@@ -35,6 +35,12 @@
 #define PDF_FILENAME "a.pdf"
 #define LATEX_FILENAME "a.tex"
 #define LATEX_BODY_FILENAME "b.tex"
+#define KEYFILE_FILENAME "snippet.ini"
+
+#define KEYFILE_GROUP "Snippet"
+#define KEYFILE_PREAMBLE "preamble"
+#define KEYFILE_MATH_MODE "style"
+
 
 class PixassoSnippet::Private {
 public:
@@ -82,6 +88,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
 {
     gchar *data_dir_cstr;
     Glib::ustring filename;
+    Glib::KeyFile keyfile;
 
     g_debug ("PixassoSnippet: creating snippet from data");
 
@@ -108,6 +115,11 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
     priv->math_mode = math_mode;
     priv->cached_zoom_factor = -1;
 
+    keyfile.set_string (KEYFILE_GROUP, KEYFILE_PREAMBLE, preamble_name);
+    keyfile.set_string (KEYFILE_GROUP, KEYFILE_MATH_MODE, math_mode);
+    filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
+    Glib::file_set_contents (filename, keyfile.to_data ());
+
     priv->generate ();
 }
 
@@ -116,6 +128,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
     : priv (new Private ())
 {
     Glib::ustring filename;
+    Glib::KeyFile keyfile;
 
     g_debug ("PixassoSnippet: creating snippet from directory %s", dir_name.c_str ());
 
@@ -125,6 +138,11 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
 
     filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
     priv->latex_body = Glib::file_get_contents (filename);
+
+    filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
+    keyfile.load_from_file (filename, Glib::KEY_FILE_NONE);
+    priv->preamble_name = keyfile.get_string (KEYFILE_GROUP, KEYFILE_PREAMBLE);
+    priv->math_mode = keyfile.get_string (KEYFILE_GROUP, KEYFILE_MATH_MODE);
 
     filename = Glib::build_filename (priv->data_dir, PDF_FILENAME);
     priv->poppler_page = poppler_page_get_first_from_file (filename);

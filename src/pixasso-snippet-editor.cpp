@@ -74,4 +74,5 @@ void
 PixassoSnippetEditor::fill_with_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
     textView->get_buffer ()->set_text (snippet->get_latex_body ());
+    mathModeCombo->set_active_text (snippet->get_math_mode ());
 }
