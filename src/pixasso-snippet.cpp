@@ -39,18 +39,21 @@
 
 #define KEYFILE_GROUP "Snippet"
 #define KEYFILE_PREAMBLE "preamble"
-#define KEYFILE_MATH_MODE "style"
+#define KEYFILE_FONT_SIZE "font-size"
+#define KEYFILE_MATH_MODE "math-mode"
 
 
 class PixassoSnippet::Private {
 public:
-    Glib::ustring preamble_name;
-    Glib::ustring latex_body;
-    time_t creation_time;
-    int format;
     Glib::ustring data_dir;
+    time_t creation_time;
+
+    Glib::ustring preamble_name;
+    Glib::ustring font_size;
+    Glib::ustring latex_body;
     Glib::ustring math_mode;
 
+    int format;
     double cached_zoom_factor;
     PopplerPage *poppler_page;
     Cairo::RefPtr<Cairo::Surface> cached_surface;
@@ -82,8 +85,9 @@ static PopplerPage *poppler_page_get_first_from_file (Glib::ustring path);
 
 // Create a PixassoSnippet from various latex data
 PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
-                                Glib::ustring latex_body,
-                                Glib::ustring math_mode)
+                                Glib::ustring font_size,
+                                Glib::ustring math_mode,
+                                Glib::ustring latex_body)
     : priv (new Private ())
 {
     gchar *data_dir_cstr;
@@ -94,11 +98,6 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
 
     priv->remove_data_on_delete = false;
 
-    if (preamble_name != "default") {
-        throw std::runtime_error ("PixassoSnippet: preamble '" + preamble_name + "' does not exist");
-    }
-    priv->preamble_name = preamble_name;
-
     data_dir_cstr = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
     if (!mkdtemp (data_dir_cstr)) {
         throw std::runtime_error ("PixassoSnippet: cache directory cannot be created");
@@ -108,17 +107,26 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
     priv->data_dir = Glib::ustring (data_dir_cstr);
     g_free (data_dir_cstr);
 
+    if (preamble_name != "default") {
+        throw std::runtime_error ("PixassoSnippet: preamble '" + preamble_name + "' does not exist");
+    }
+    priv->preamble_name = preamble_name;
+    keyfile.set_string (KEYFILE_GROUP, KEYFILE_PREAMBLE, preamble_name);
+
+    priv->math_mode = math_mode;
+    keyfile.set_string (KEYFILE_GROUP, KEYFILE_MATH_MODE, math_mode);
+
     priv->latex_body = latex_body;
     filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
     Glib::file_set_contents (filename, priv->latex_body);
 
-    priv->math_mode = math_mode;
-    priv->cached_zoom_factor = -1;
+    priv->font_size = font_size;
+    keyfile.set_string (KEYFILE_GROUP, KEYFILE_FONT_SIZE, font_size);
 
-    keyfile.set_string (KEYFILE_GROUP, KEYFILE_PREAMBLE, preamble_name);
-    keyfile.set_string (KEYFILE_GROUP, KEYFILE_MATH_MODE, math_mode);
     filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
     Glib::file_set_contents (filename, keyfile.to_data ());
+
+    priv->cached_zoom_factor = -1;
 
     priv->generate ();
 }
@@ -142,6 +150,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
     filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
     keyfile.load_from_file (filename, Glib::KEY_FILE_NONE);
     priv->preamble_name = keyfile.get_string (KEYFILE_GROUP, KEYFILE_PREAMBLE);
+    priv->font_size = keyfile.get_string (KEYFILE_GROUP, KEYFILE_FONT_SIZE);
     priv->math_mode = keyfile.get_string (KEYFILE_GROUP, KEYFILE_MATH_MODE);
 
     filename = Glib::build_filename (priv->data_dir, PDF_FILENAME);
@@ -224,24 +233,6 @@ PixassoSnippet::set_export_format ()
 {
 }
 
-Glib::ustring
-PixassoSnippet::get_latex_body ()
-{
-    return priv->latex_body;
-}
-
-Glib::ustring
-PixassoSnippet::get_preamble_name ()
-{
-    return priv->preamble_name;
-}
-
-Glib::ustring
-PixassoSnippet::get_math_mode ()
-{
-    return priv->math_mode;
-}
-
 time_t
 PixassoSnippet::get_creation_time ()
 {
@@ -252,6 +243,30 @@ Glib::ustring
 PixassoSnippet::get_data_dir ()
 {
     return priv->data_dir;
+}
+
+Glib::ustring
+PixassoSnippet::get_preamble_name ()
+{
+    return priv->preamble_name;
+}
+
+Glib::ustring
+PixassoSnippet::get_font_size ()
+{
+    return priv->font_size;
+}
+
+Glib::ustring
+PixassoSnippet::get_math_mode ()
+{
+    return priv->math_mode;
+}
+
+Glib::ustring
+PixassoSnippet::get_latex_body ()
+{
+    return priv->latex_body;
 }
 
 bool
@@ -274,7 +289,10 @@ PixassoSnippet::Private::generate ()
         latex_full =
             "\\documentclass{article}"
             "\\pagestyle{empty}"
-            "\\begin{document} " +
+            "\\usepackage{amsmath,amssymb,amsfonts}"
+            "\\usepackage{fix-cm}"
+            "\\begin{document} "
+            "\\fontsize{" + font_size + "}{" + font_size + "}\\selectfont" +
             math_mode_map[math_mode].prefix +
             latex_body +
             math_mode_map[math_mode].suffix +

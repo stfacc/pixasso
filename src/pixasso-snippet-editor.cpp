@@ -29,6 +29,8 @@
 #include <gtkmm.h>
 #include <iostream>
 
+#define DEFAULT_FONT_SIZE "14pt"
+
 
 PixassoSnippetEditor::PixassoSnippetEditor ()
 {
@@ -45,6 +47,7 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 
     refBuilder->get_widget ("latex-textview", textView);
     refBuilder->get_widget ("font-entry", fontEntry);
+    fontEntry->set_text (DEFAULT_FONT_SIZE);
     
     refBuilder->get_widget ("scrolledwindow", widget);
     widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_BOTTOM);
@@ -66,13 +69,15 @@ Glib::RefPtr<PixassoSnippet>
 PixassoSnippetEditor::create_snippet ()
 {
     return Glib::RefPtr<PixassoSnippet> (new PixassoSnippet ("default",
-                                                             textView->get_buffer ()->get_text (),
-                                                             mathModeCombo->get_active_math_mode ()));
+                                                             fontEntry->get_text (),
+                                                             mathModeCombo->get_active_math_mode (),
+                                                             textView->get_buffer ()->get_text () ));
 }
 
 void
 PixassoSnippetEditor::fill_with_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
-    textView->get_buffer ()->set_text (snippet->get_latex_body ());
+    fontEntry->set_text (snippet->get_font_size ());
     mathModeCombo->set_active_text (snippet->get_math_mode ());
+    textView->get_buffer ()->set_text (snippet->get_latex_body ());
 }
