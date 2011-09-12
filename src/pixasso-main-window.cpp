@@ -79,6 +79,10 @@ PixassoMainWindow::PixassoMainWindow ()
     ((Gtk::Button *) widget)->
         signal_clicked ().connect (sigc::mem_fun (*this,
                                                   &PixassoMainWindow::on_clear_button_clicked));
+
+    refBuilder->get_widget ("history-button", history_button);
+    history_button->signal_clicked ().connect (sigc::mem_fun (*this,
+                                                              &PixassoMainWindow::on_history_button_clicked));
 }
 
 PixassoMainWindow::~PixassoMainWindow ()
@@ -118,4 +122,13 @@ PixassoMainWindow::on_clear_button_clicked ()
 {
     snippet_editor->set_default ();
     preview->clear ();
+}
+
+void
+PixassoMainWindow::on_history_button_clicked ()
+{
+    if (history_view->get_visible ())
+        history_view->hide ();
+    else
+        history_view->show ();
 }
