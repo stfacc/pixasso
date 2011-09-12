@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=PiXasso
+Comment=LaTeX snippet editor
+Exec=pixasso
+Icon=pixasso
+Terminal=false
+Type=Application
+StartupNotify=true
