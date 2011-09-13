@@ -116,11 +116,14 @@ PixassoPreview::clear ()
     area->queue_draw ();
 }
 
+#define ZOOM_MIN_FACTOR 0.1
+#define ZOOM_MAX_FACTOR 10.0
+
 void
 PixassoPreview::set_zoom_factor (double factor)
 {
-    area->zoom_factor = factor;
-    zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), factor * 100) + "%");
+    area->zoom_factor = CLAMP (factor, ZOOM_MIN_FACTOR, ZOOM_MAX_FACTOR);
+    zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), area->zoom_factor * 100) + "%");
     area->queue_resize ();
 }
 
