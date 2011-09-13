@@ -128,6 +128,7 @@ void
 PixassoPreview::clear ()
 {
     area->snippet.reset ();
+    area->set_zoom_100 ();
     area->queue_draw ();
 }
 
