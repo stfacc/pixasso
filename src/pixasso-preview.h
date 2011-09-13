@@ -34,11 +34,6 @@ public:
     ~PixassoPreview ();
     void set_snippet (Glib::RefPtr<PixassoSnippet> &);
     void clear ();
-    void set_zoom_factor (double);
-    void set_zoom_in ();
-    void set_zoom_out ();
-    void set_zoom_100 ();
-    double get_zoom_factor ();
 
 private:
     class Area;
@@ -47,6 +42,7 @@ private:
     Gtk::Label zoom_label;
     void setup_preview ();
     bool on_event_cb (GdkEvent *);
+    void on_zoomfactor_cb ();
 };
 
 #endif
