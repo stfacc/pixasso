@@ -72,8 +72,8 @@ create_math_mode_map ()
     m["Display"].suffix = "\\]";
     m["Inline"].prefix = "\\(";
     m["Inline"].suffix = "\\)";
-    m["Text"].prefix = "";
-    m["Text"].suffix = "";
+    m["Text"].prefix = " ";
+    m["Text"].suffix = " ";
     return m;
 }
 
