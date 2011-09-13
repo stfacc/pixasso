@@ -73,6 +73,8 @@ PixassoHistory::populate ()
             prepend_snippet (snippet);
         } catch (Glib::Exception &e) {
             std::cerr << "Error creating history element: " << e.what () << std::endl;
+        } catch (std::exception &e) {
+            std::cerr << "Error creating history element: " << e.what () << std::endl;
         }
     }
 }
