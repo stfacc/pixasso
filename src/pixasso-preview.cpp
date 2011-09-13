@@ -230,8 +230,8 @@ PixassoPreview::Area::on_draw (const Cairo::RefPtr< Cairo::Context >& cr)
     get_preferred_width (min_width, nat_width);
     get_preferred_height (min_height, nat_height);
 
-    x = floor ((get_allocation ().get_width () - min_width) / 2);
-    y = floor ((get_allocation ().get_height () - min_height) / 2);
+    x = floor ((get_allocated_width () - min_width) / 2);
+    y = floor ((get_allocated_height () - min_height) / 2);
     
     cr->translate (x, y);
     snippet->render (cr, prop_zoom.get_value ());
