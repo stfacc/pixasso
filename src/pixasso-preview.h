@@ -42,7 +42,7 @@ private:
     Gtk::Label zoom_label;
     void setup_preview ();
     bool on_event_cb (GdkEvent *);
-    void on_zoomfactor_cb ();
+    void on_zoom_cb ();
 };
 
 #endif
