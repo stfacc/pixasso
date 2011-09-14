@@ -38,7 +38,6 @@ protected:
     Gtk::TreeView m_TreeView;
     void on_row_selected ();
     void on_row_activated (const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);
-    void cell_data_func (Gtk::CellRenderer*, const Gtk::TreeModel::iterator&);
 };
 
 #endif

@@ -29,19 +29,53 @@
 #include <gtkmm/treeview.h>
 
 
+class HistoryCellRenderer : public Gtk::CellRenderer
+{
+public:
+    HistoryCellRenderer () :
+        Glib::ObjectBase (typeid (HistoryCellRenderer)),
+        prop_snippet (*this, "snippet")
+    {}
+
+    Glib::PropertyProxy< Glib::RefPtr<PixassoSnippet> > property_snippet ()
+    { return prop_snippet.get_proxy (); }
+    const Glib::PropertyProxy_ReadOnly< Glib::RefPtr<PixassoSnippet> > property_snippet () const
+    { return Glib::PropertyProxy_ReadOnly< Glib::RefPtr<PixassoSnippet> > (this, "snippet"); }
+
+private:
+    Glib::Property< Glib::RefPtr<PixassoSnippet> > prop_snippet;
+
+protected:
+    virtual void render_vfunc (const Cairo::RefPtr< Cairo::Context > & cr,
+                               Gtk::Widget& widget,
+                               const Gdk::Rectangle& background_area,
+                               const Gdk::Rectangle& cell_area,
+                               Gtk::CellRendererState flags);
+    virtual void get_preferred_width_vfunc (Gtk::Widget& widget,
+                                            int& minimum_width,
+                                            int& natural_width) const;
+    virtual void get_preferred_height_for_width_vfunc (Gtk::Widget& widget,
+                                                       int width,
+                                                       int& minimum_height,
+                                                       int& natural_height) const;
+};
+
 PixassoHistoryView::PixassoHistoryView (Glib::RefPtr<PixassoHistory> &history)
 {
-    Gtk::CellRendererText *cell = Gtk::manage (new Gtk::CellRendererText ());
-    Gtk::TreeView::Column *column = Gtk::manage (new Gtk::TreeView::Column ("Snippet", *cell));
-    column->set_cell_data_func (*cell, sigc::mem_fun (*this, &PixassoHistoryView::cell_data_func)); 
+    set_policy (Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+    set_size_request (150, -1);
+
+    HistoryCellRenderer *cell = Gtk::manage (new HistoryCellRenderer ());
+    Gtk::TreeView::Column *column = Gtk::manage (new Gtk::TreeView::Column ("History", *cell));
+    column->add_attribute (*cell, "snippet", 0);
 
     m_TreeView.append_column (*column);
 
-    m_TreeView.signal_cursor_changed ().connect (sigc::mem_fun (*this,
-                                                                &PixassoHistoryView::on_row_selected));
+    m_TreeView.signal_cursor_changed ()
+        .connect (sigc::mem_fun (*this, &PixassoHistoryView::on_row_selected));
 
-    m_TreeView.signal_row_activated ().connect (sigc::mem_fun (*this,
-                                                                &PixassoHistoryView::on_row_activated));
+    m_TreeView.signal_row_activated ()
+        .connect (sigc::mem_fun (*this, &PixassoHistoryView::on_row_activated));
 
     m_TreeView.set_model (history);
 
@@ -75,10 +109,44 @@ PixassoHistoryView::on_row_activated (const Gtk::TreeModel::Path& path,
 }
 
 void
-PixassoHistoryView::cell_data_func (Gtk::CellRenderer *cell,
-                                    const Gtk::TreeModel::iterator &iter)
+HistoryCellRenderer::render_vfunc (const Cairo::RefPtr< Cairo::Context > & cr,
+                                   Gtk::Widget& widget,
+                                   const Gdk::Rectangle& background_area,
+                                   const Gdk::Rectangle& cell_area,
+                                   Gtk::CellRendererState flags)
 {
-    Glib::RefPtr<PixassoSnippet> snippet;
-    (*iter).get_value (0, snippet);
-    ((Gtk::CellRendererText *) cell)->property_text () = snippet->get_latex_body ();
+    Glib::RefPtr<PixassoSnippet> snippet = property_snippet ();
+    int x = cell_area.get_x ();
+    int y = cell_area.get_y ();
+    double scale = cell_area.get_width () / snippet->get_width ();
+
+    if (scale > 1) {
+        x += (cell_area.get_width () - snippet->get_width ()) / 2;
+        scale = 1;
+    } else {
+        y += (cell_area.get_height () - snippet->get_height () * scale) / 2;
+    }
+
+    cr->translate (x, y);
+    snippet->render (cr, scale);
+}
+
+void
+HistoryCellRenderer::get_preferred_height_for_width_vfunc (Gtk::Widget& widget,
+                                                           int width,
+                                                           int& minimum_height,
+                                                           int& natural_height) const
+{
+    Glib::RefPtr<PixassoSnippet> snippet = property_snippet ();
+    double snippet_width = snippet->get_width ();
+    double snippet_height = snippet->get_height ();
+    natural_height = minimum_height = MIN (ceil (snippet_height), ceil (snippet_height * width / snippet_width));
+}
+
+void
+HistoryCellRenderer::get_preferred_width_vfunc (Gtk::Widget& widget,
+                                                int& minimum_width,
+                                                int& natural_width) const
+{
+    minimum_width = natural_width = widget.get_allocated_width ();
 }
