@@ -35,7 +35,7 @@ public:
     Glib::RefPtr<PixassoSnippet> create_snippet ();
     void fill_with_snippet (Glib::RefPtr<PixassoSnippet> &);
 
-private:    
+private:
     Gtk::TextView *textView;
     Gtk::Entry *fontEntry;
     PixassoMathModeCombo *mathModeCombo;

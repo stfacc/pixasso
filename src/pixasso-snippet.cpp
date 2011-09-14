@@ -57,7 +57,7 @@ public:
     double cached_zoom_factor;
     PopplerPage *poppler_page;
     Cairo::RefPtr<Cairo::Surface> cached_surface;
-    
+
     bool generated;
     void generate ();
 
@@ -172,7 +172,7 @@ PixassoSnippet::~PixassoSnippet ()
 
     delete priv;
 }
-    
+
 void
 PixassoSnippet::set_remove_data_on_delete (bool remove)
 {
@@ -208,7 +208,7 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
     // so we need a cairo surface as intermediate step
 
     Cairo::RefPtr<Cairo::Context> context;
-    
+
     if (zoom_factor != priv->cached_zoom_factor) {
         g_debug ("Regenarating cached surface");
         priv->cached_surface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
@@ -282,7 +282,7 @@ PixassoSnippet::Private::generate ()
 
     if (generated)
         return;
-    
+
     if (preamble_name == "default") {
         latex_full =
             "\\documentclass{article}"
@@ -298,10 +298,10 @@ PixassoSnippet::Private::generate ()
     }
 
     Glib::file_set_contents (LATEX_FILENAME, latex_full);
-    
+
     g_spawn_command_line_sync ("pdflatex -halt-on-error '\\input " LATEX_FILENAME "'", NULL, NULL, NULL, NULL);
     g_spawn_command_line_sync ("pdfcrop " PDF_FILENAME " " PDF_FILENAME, NULL, NULL, NULL, NULL);
-    
+
     source_path = Glib::build_filename (Glib::get_current_dir (), PDF_FILENAME);
 
     poppler_page = poppler_page_get_first_from_file (source_path);

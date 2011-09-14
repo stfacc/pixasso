@@ -47,17 +47,17 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 
     refBuilder->get_widget ("latex-textview", textView);
     refBuilder->get_widget ("font-entry", fontEntry);
-    
+
     refBuilder->get_widget ("scrolledwindow", widget);
     widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_BOTTOM);
 
     attach (*widget, 0, 0, 1, 1);
-    
+
     refBuilder->get_widget ("textview-toolbar", widget);
     widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_TOP);
 
     attach (*widget, 0, 1, 1, 1);
-    
+
     mathModeCombo = new PixassoMathModeCombo ();
     mathModeCombo->show ();
     refBuilder->get_widget ("toolitem-style-combo", widget);

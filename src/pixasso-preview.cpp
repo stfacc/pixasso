@@ -89,7 +89,7 @@ PixassoPreview::setup_preview ()
     ti->add (zoom_label);
     ti->set_margin_left (6);
     ((Gtk::Toolbar *) widget)->append (*ti);
-    
+
     widget->show_all ();
 
     attach (*widget, 0, 1, 1, 1);
@@ -161,9 +161,9 @@ PixassoPreview::on_event_cb (GdkEvent *e)
 
     if (e->type != GDK_SCROLL)
         return false;
-    
+
     event = (GdkEventScroll *) e;
-    
+
     switch (event->direction) {
     case GDK_SCROLL_UP:
         set_zoom_factor (get_zoom_factor () * PIXASSO_PREVIEW_ZOOM_STEP_FACTOR_SCROLL);
@@ -173,7 +173,7 @@ PixassoPreview::on_event_cb (GdkEvent *e)
         break;
     }
     g_debug ("ZOOM: %f", get_zoom_factor ());
-    
+
     return true;
 }
 
@@ -213,7 +213,7 @@ PixassoPreview::Area::on_draw (const Cairo::RefPtr< Cairo::Context >& cr)
 
     cr->set_source_rgb (1, 1, 1);
     cr->paint ();
-    
+
     if (!snippet)
         return true;
 
@@ -222,7 +222,7 @@ PixassoPreview::Area::on_draw (const Cairo::RefPtr< Cairo::Context >& cr)
 
     x = floor ((get_allocation ().get_width () - min_width) / 2);
     y = floor ((get_allocation ().get_height () - min_height) / 2);
-    
+
     cr->translate (x, y);
     snippet->render (cr, zoom_factor);
 
