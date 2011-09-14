@@ -45,6 +45,8 @@ public:
 private:
     Glib::Property< Glib::RefPtr<PixassoSnippet> > prop_snippet;
 
+    static const int MINIMUM_CELL_HEIGHT = 50;
+
 protected:
     virtual void render_vfunc (const Cairo::RefPtr< Cairo::Context > & cr,
                                Gtk::Widget& widget,
@@ -123,9 +125,8 @@ HistoryCellRenderer::render_vfunc (const Cairo::RefPtr< Cairo::Context > & cr,
     if (scale > 1) {
         x += (cell_area.get_width () - snippet->get_width ()) / 2;
         scale = 1;
-    } else {
-        y += (cell_area.get_height () - snippet->get_height () * scale) / 2;
     }
+    y += (cell_area.get_height () - snippet->get_height () * scale) / 2;
 
     cr->translate (x, y);
     snippet->render (cr, scale);
@@ -140,7 +141,7 @@ HistoryCellRenderer::get_preferred_height_for_width_vfunc (Gtk::Widget& widget,
     Glib::RefPtr<PixassoSnippet> snippet = property_snippet ();
     double snippet_width = snippet->get_width ();
     double snippet_height = snippet->get_height ();
-    natural_height = minimum_height = MIN (ceil (snippet_height), ceil (snippet_height * width / snippet_width));
+    natural_height = minimum_height = MAX (MIN (ceil (snippet_height), ceil (snippet_height * width / snippet_width)), MINIMUM_CELL_HEIGHT);
 }
 
 void
