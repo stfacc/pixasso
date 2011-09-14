@@ -67,7 +67,7 @@ PixassoHistoryView::PixassoHistoryView (Glib::RefPtr<PixassoHistory> &history)
 
     HistoryCellRenderer *cell = Gtk::manage (new HistoryCellRenderer ());
     Gtk::TreeView::Column *column = Gtk::manage (new Gtk::TreeView::Column ("History", *cell));
-    column->add_attribute (*cell, "snippet", 0);
+    column->add_attribute (*cell, "snippet", PixassoHistory::SNIPPET_C);
 
     m_TreeView.append_column (*column);
 
@@ -95,7 +95,7 @@ void
 PixassoHistoryView::on_row_selected ()
 {
     Glib::RefPtr<PixassoSnippet> snippet;
-    (*m_TreeView.get_selection ()->get_selected ()).get_value (0, snippet);
+    (*m_TreeView.get_selection ()->get_selected ()).get_value (PixassoHistory::SNIPPET_C, snippet);
     g_debug ("Selected snippet: %s", snippet->get_latex_body ().c_str ());
 }
 
@@ -104,7 +104,7 @@ PixassoHistoryView::on_row_activated (const Gtk::TreeModel::Path& path,
                                       Gtk::TreeViewColumn* /* column */)
 {
     Glib::RefPtr<PixassoSnippet> snippet;
-    (*m_TreeView.get_model ()->get_iter (path)).get_value (0, snippet);
+    (*m_TreeView.get_model ()->get_iter (path)).get_value (PixassoHistory::SNIPPET_C, snippet);
     g_debug ("Activated snippet: %s", snippet->get_latex_body ().c_str ());
 }
 

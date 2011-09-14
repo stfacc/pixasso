@@ -31,6 +31,11 @@
 class PixassoHistory : public Gtk::ListStore
 {
 public:
+    enum {
+        SNIPPET_C,
+        N_COLUMNS
+    };
+
     PixassoHistory ();
     ~PixassoHistory ();
     void prepend_snippet (Glib::RefPtr<PixassoSnippet> &snippet);
