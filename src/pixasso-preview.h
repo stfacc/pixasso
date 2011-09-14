@@ -70,6 +70,7 @@ private:
     void set_zoom (double);
     void set_zoom_step (double);
     void set_zoom_100 ();
+    void set_zoom_fit ();
 
     void setup_preview ();
     bool on_event_cb (GdkEvent *);

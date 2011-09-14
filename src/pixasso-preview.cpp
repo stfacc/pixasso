@@ -77,6 +77,8 @@ PixassoPreview::setup_preview ()
                      (sigc::mem_fun (*this, &PixassoPreview::set_zoom_step), ZOOM_STEP));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_100));
     toolbar->append (*tb, sigc::mem_fun (*this, &PixassoPreview::set_zoom_100));
+    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_FIT));
+    toolbar->append (*tb, sigc::mem_fun (*this, &PixassoPreview::set_zoom_fit));
 
     Gtk::ToolItem *ti = new Gtk::ToolItem ();
     ti->add (zoom_label);
@@ -130,6 +132,14 @@ void
 PixassoPreview::set_zoom_100 ()
 {
     set_zoom (1);
+}
+
+void
+PixassoPreview::set_zoom_fit ()
+{
+    double x_scale_request = scrolled.get_allocated_width () / snippet->get_width ();
+    double y_scale_request = scrolled.get_allocated_height () / snippet->get_height ();
+    set_zoom (MIN (x_scale_request, y_scale_request));
 }
 
 #define ZOOM_STEP_ON_SCROLL 1.2
