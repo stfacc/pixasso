@@ -216,8 +216,6 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
                                                             ceil (get_height () * zoom_factor));
         real_scale = RESOLUTION_SCALE * zoom_factor;
         context = Cairo::Context::create (priv->cached_surface);
-        context->set_source_rgb (1, 1, 1);
-        context->paint ();
         context->scale (real_scale, real_scale);
         poppler_page_render (priv->poppler_page, context->cobj ());
 
