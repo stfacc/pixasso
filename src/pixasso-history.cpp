@@ -53,6 +53,7 @@ PixassoHistory::prepend_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 
     Gtk::TreeModel::Row row = *(prepend ());
     row[m_Columns.m_Snippet] = snippet;
+    row[m_Columns.m_LatexBody] = snippet->get_latex_body ();
 }
 
 void

@@ -33,6 +33,7 @@ class PixassoHistory : public Gtk::ListStore
 public:
     enum {
         SNIPPET_C,
+        LATEX_BODY_C,
         N_COLUMNS
     };
 
@@ -47,9 +48,10 @@ protected:
     {
     public:
         ModelColumns()
-        { add (m_Snippet); }
+        { add (m_Snippet); add (m_LatexBody); }
 
         Gtk::TreeModelColumn< Glib::RefPtr<PixassoSnippet> > m_Snippet;
+        Gtk::TreeModelColumn< Glib::ustring > m_LatexBody;
     };
 
     ModelColumns m_Columns;

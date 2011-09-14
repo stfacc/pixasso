@@ -80,6 +80,7 @@ PixassoHistoryView::PixassoHistoryView (Glib::RefPtr<PixassoHistory> &history)
         .connect (sigc::mem_fun (*this, &PixassoHistoryView::on_row_activated));
 
     m_TreeView.set_model (history);
+    m_TreeView.set_tooltip_column (PixassoHistory::LATEX_BODY_C);
 
     set_shadow_type (Gtk::SHADOW_IN);
     add (m_TreeView);
