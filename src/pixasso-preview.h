@@ -27,7 +27,24 @@
 #include <gtkmm.h>
 
 
-class PixassoPreview : public Gtk::Grid {
+class PixassoPreview
+    : public Gtk::Grid
+{
+    class Area
+        : public Gtk::DrawingArea
+    {
+    public:
+        Area (PixassoPreview &x) : parent (x) {}
+
+    private:
+        PixassoPreview &parent;
+
+    protected:
+        virtual bool on_draw (const Cairo::RefPtr< Cairo::Context >& cr);
+        virtual void get_preferred_width_vfunc (int& minimum_width, int& natural_width) const;
+        virtual void get_preferred_height_vfunc (int& minimum_height, int& natural_height) const;
+    };
+
 public:
     PixassoPreview ();
     PixassoPreview (Glib::RefPtr<PixassoSnippet> &);
@@ -35,11 +52,25 @@ public:
     void set_snippet (Glib::RefPtr<PixassoSnippet> &);
     void clear ();
 
+    const Glib::PropertyProxy_ReadOnly<double> property_zoom () const
+    { return Glib::PropertyProxy_ReadOnly<double> (this, "zoom"); }
+
 private:
-    class Area;
+    Glib::PropertyProxy<double> property_zoom ()
+    { return prop_zoom.get_proxy (); }
+
     Area *area;
 
+    Gtk::ScrolledWindow scrolled;
+
+    Glib::RefPtr<PixassoSnippet> snippet;
+    Glib::Property<double> prop_zoom;
+
     Gtk::Label zoom_label;
+    void set_zoom (double);
+    void set_zoom_step (double);
+    void set_zoom_100 ();
+
     void setup_preview ();
     bool on_event_cb (GdkEvent *);
     void on_zoom_cb ();
