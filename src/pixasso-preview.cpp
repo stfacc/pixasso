@@ -27,74 +27,67 @@
 #include <iomanip>
 
 
-class PixassoPreview::Area
-    : public Gtk::DrawingArea {
-public:
-    Glib::RefPtr<PixassoSnippet> snippet;
-    double zoom_factor;
-
-protected:
-    virtual bool on_draw (const Cairo::RefPtr< Cairo::Context >& cr);
-    virtual void get_preferred_width_vfunc (int& minimum_width, int& natural_width) const;
-    virtual void get_preferred_height_vfunc (int& minimum_height, int& natural_height) const;
-};
-
-
 PixassoPreview::PixassoPreview ()
-    : area (new Area ())
+    : area (new Area (*this)),
+      Glib::ObjectBase (typeid (PixassoPreview)),
+      prop_zoom (*this, "zoom")
 {
     setup_preview ();
     clear ();
 }
 
 PixassoPreview::PixassoPreview (Glib::RefPtr<PixassoSnippet> &snippet)
-    : area (new Area ())
+    : area (new Area (*this)),
+      Glib::ObjectBase (typeid (PixassoPreview)),
+      prop_zoom (*this, "zoom")
 {
     setup_preview ();
     set_snippet (snippet);
 }
 
+#define ZOOM_STEP 2.0
+
 void
 PixassoPreview::setup_preview ()
 {
-    Gtk::Widget *widget;
+    scrolled.add (*area);
+    scrolled.signal_event ()
+        .connect (sigc::mem_fun (*this, &PixassoPreview::on_event_cb));
+    property_zoom ().signal_changed ()
+        .connect (sigc::mem_fun (*this, &PixassoPreview::on_zoom_cb));
+    set_zoom_100 ();
 
-    widget = new Gtk::ScrolledWindow ();
-    ((Gtk::ScrolledWindow *) widget)->add (*area);
-    widget->signal_event ().connect (sigc::mem_fun (*this,
-                                                    &PixassoPreview::on_event_cb));
+    scrolled.set_vexpand (true);
+    scrolled.set_hexpand (true);
+    scrolled.set_shadow_type (Gtk::SHADOW_IN);
+    scrolled.get_style_context ()->set_junction_sides (Gtk::JUNCTION_BOTTOM);
+    scrolled.show_all ();
 
-    widget->set_vexpand (true);
-    widget->set_hexpand (true);
-    ((Gtk::ScrolledWindow *) widget)->set_shadow_type (Gtk::SHADOW_IN);
-    widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_BOTTOM);
-    widget->show_all ();
+    attach (scrolled, 0, 0, 1, 1);
 
-    attach (*widget, 0, 0, 1, 1);
-
-    widget = new Gtk::Toolbar ();
-    widget->get_style_context ()->add_class ("inline-toolbar");
-    widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_TOP);
+    Gtk::Toolbar *toolbar = new Gtk::Toolbar ();
+    toolbar->get_style_context ()->add_class ("inline-toolbar");
+    toolbar->get_style_context ()->set_junction_sides (Gtk::JUNCTION_TOP);
     Gtk::ToolButton *tb;
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_OUT));
-    ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
-                                                           &PixassoPreview::set_zoom_out));
+    toolbar->append (*tb, sigc::bind<double>
+                     (sigc::mem_fun (*this, &PixassoPreview::set_zoom_step), 1 / ZOOM_STEP));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_IN));
-    ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
-                                                           &PixassoPreview::set_zoom_in));
+    toolbar->append (*tb, sigc::bind<double>
+                     (sigc::mem_fun (*this, &PixassoPreview::set_zoom_step), ZOOM_STEP));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_100));
-    ((Gtk::Toolbar *) widget)->append (*tb, sigc::mem_fun (*this,
-                                                           &PixassoPreview::set_zoom_100));
+    toolbar->append (*tb, sigc::mem_fun (*this, &PixassoPreview::set_zoom_100));
+    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_FIT));
+    toolbar->append (*tb, sigc::mem_fun (*this, &PixassoPreview::set_zoom_fit));
+
     Gtk::ToolItem *ti = new Gtk::ToolItem ();
     ti->add (zoom_label);
     ti->set_margin_left (6);
-    ((Gtk::Toolbar *) widget)->append (*ti);
+    toolbar->append (*ti);
 
-    widget->show_all ();
+    toolbar->show_all ();
 
-    attach (*widget, 0, 1, 1, 1);
-
-    set_zoom_100 ();
+    attach (*toolbar, 0, 1, 1, 1);
 }
 
 PixassoPreview::~PixassoPreview ()
@@ -105,54 +98,51 @@ PixassoPreview::~PixassoPreview ()
 void
 PixassoPreview::set_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
-    area->snippet = snippet;
+    (*this).snippet = snippet;
     area->queue_resize ();
 }
 
 void
 PixassoPreview::clear ()
 {
-    area->snippet.reset ();
+    snippet.reset ();
+    set_zoom_100 ();
     area->queue_draw ();
 }
 
-#define ZOOM_MIN_FACTOR 0.1
-#define ZOOM_MAX_FACTOR 10.0
+#define ZOOM_MIN 0.1
+#define ZOOM_MAX 10.0
 
 void
-PixassoPreview::set_zoom_factor (double factor)
+PixassoPreview::set_zoom (double zoom)
 {
-    area->zoom_factor = CLAMP (factor, ZOOM_MIN_FACTOR, ZOOM_MAX_FACTOR);
-    zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), area->zoom_factor * 100) + "%");
+    double real_zoom = CLAMP (zoom, ZOOM_MIN, ZOOM_MAX);
+    property_zoom () = real_zoom;
+    g_debug ("ZOOM: %f", real_zoom);
     area->queue_resize ();
 }
 
-#define PIXASSO_PREVIEW_ZOOM_STEP_FACTOR 2
-#define PIXASSO_PREVIEW_ZOOM_STEP_FACTOR_SCROLL 1.2
-
 void
-PixassoPreview::set_zoom_in ()
+PixassoPreview::set_zoom_step (double step)
 {
-    set_zoom_factor (get_zoom_factor () * PIXASSO_PREVIEW_ZOOM_STEP_FACTOR);
-}
-
-void
-PixassoPreview::set_zoom_out ()
-{
-    set_zoom_factor (get_zoom_factor () / PIXASSO_PREVIEW_ZOOM_STEP_FACTOR);
+    set_zoom (property_zoom () * step);
 }
 
 void
 PixassoPreview::set_zoom_100 ()
 {
-    set_zoom_factor (1);
+    set_zoom (1);
 }
 
-double
-PixassoPreview::get_zoom_factor ()
+void
+PixassoPreview::set_zoom_fit ()
 {
-    return area->zoom_factor;
+    double x_scale_request = scrolled.get_allocated_width () / snippet->get_width ();
+    double y_scale_request = scrolled.get_allocated_height () / snippet->get_height ();
+    set_zoom (MIN (x_scale_request, y_scale_request));
 }
+
+#define ZOOM_STEP_ON_SCROLL 1.2
 
 bool
 PixassoPreview::on_event_cb (GdkEvent *e)
@@ -166,15 +156,21 @@ PixassoPreview::on_event_cb (GdkEvent *e)
 
     switch (event->direction) {
     case GDK_SCROLL_UP:
-        set_zoom_factor (get_zoom_factor () * PIXASSO_PREVIEW_ZOOM_STEP_FACTOR_SCROLL);
+        set_zoom_step (ZOOM_STEP_ON_SCROLL);
 	break;
     case GDK_SCROLL_DOWN:
-        set_zoom_factor (get_zoom_factor () / PIXASSO_PREVIEW_ZOOM_STEP_FACTOR_SCROLL);
+        set_zoom_step (1 / ZOOM_STEP_ON_SCROLL);
         break;
     }
-    g_debug ("ZOOM: %f", get_zoom_factor ());
 
     return true;
+}
+
+void
+PixassoPreview::on_zoom_cb ()
+{
+    double zoom = property_zoom ();
+    zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), zoom * 100) + "%");
 }
 
 void
@@ -182,8 +178,8 @@ PixassoPreview::Area::get_preferred_width_vfunc (int& minimum_width,
                                                  int& natural_width) const
 {
     int w;
-    if (snippet)
-        w = ceil (snippet->get_width () * zoom_factor);
+    if (parent.snippet)
+        w = ceil (parent.snippet->get_width () * parent.property_zoom ());
     else
         w = 0;
     minimum_width = natural_width = w;
@@ -194,8 +190,8 @@ PixassoPreview::Area::get_preferred_height_vfunc (int& minimum_height,
                                                   int& natural_height) const
 {
     int h;
-    if (snippet)
-        h = ceil (snippet->get_height () * zoom_factor);
+    if (parent.snippet)
+        h = ceil (parent.snippet->get_height () * parent.property_zoom ());
     else
         h = 0;
     minimum_height = natural_height = h;
@@ -214,17 +210,17 @@ PixassoPreview::Area::on_draw (const Cairo::RefPtr< Cairo::Context >& cr)
     cr->set_source_rgb (1, 1, 1);
     cr->paint ();
 
-    if (!snippet)
+    if (!parent.snippet)
         return true;
 
     get_preferred_width (min_width, nat_width);
     get_preferred_height (min_height, nat_height);
 
-    x = floor ((get_allocation ().get_width () - min_width) / 2);
-    y = floor ((get_allocation ().get_height () - min_height) / 2);
+    x = floor ((get_allocated_width () - min_width) / 2);
+    y = floor ((get_allocated_height () - min_height) / 2);
 
     cr->translate (x, y);
-    snippet->render (cr, zoom_factor);
+    parent.snippet->render (cr, parent.property_zoom ());
 
     return true;
 }
