@@ -1,6 +1,8 @@
 bin_PROGRAMS = pixasso
 
 INCLUDES = \
+	-DLOCALE_DIR=\""$(localedir)"\"			\
+	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"	\
 	-DDATADIR=\""$(datadir)"\"
 
 pixasso_SOURCES = \
@@ -30,3 +32,4 @@ pixasso_LDFLAGS = \
 	$(GTK_LIBS)		\
 	$(POPPLER_GLIB_LIBS)
 
+LDADD = $(LIBINTL)

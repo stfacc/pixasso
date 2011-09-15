@@ -24,11 +24,17 @@
 #include "pixasso-main-window.h"
 #include "pixasso-utils.h"
 
+#include <glib/gi18n.h>
 #include <gtkmm.h>
+#include <locale.h>
 
 
 int main (int argc, char **argv)
 {
+    setlocale (LC_ALL, "");
+    bindtextdomain (PACKAGE, LOCALE_DIR);
+    textdomain (PACKAGE);
+
     Glib::ustring tmpdir;
     Gtk::Main kit (argc, argv);
 

@@ -24,6 +24,7 @@
 #include "pixasso-snippet.h"
 #include "pixasso-history.h"
 
+#include <glib/gi18n.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treeview.h>
@@ -68,7 +69,7 @@ PixassoHistoryView::PixassoHistoryView (Glib::RefPtr<PixassoHistory> &history)
     set_size_request (150, -1);
 
     HistoryCellRenderer *cell = Gtk::manage (new HistoryCellRenderer ());
-    Gtk::TreeView::Column *column = Gtk::manage (new Gtk::TreeView::Column ("History", *cell));
+    Gtk::TreeView::Column *column = Gtk::manage (new Gtk::TreeView::Column (_("History"), *cell));
     column->add_attribute (*cell, "snippet", PixassoHistory::SNIPPET_C);
 
     m_TreeView.append_column (*column);
