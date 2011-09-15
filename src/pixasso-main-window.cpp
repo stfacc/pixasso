@@ -51,13 +51,15 @@ PixassoMainWindow::PixassoMainWindow ()
         exit (EXIT_FAILURE);
     }
 
-    refBuilder->get_widget ("grid1", widget);
+    refBuilder->get_widget ("main-grid", widget);
 
     snippet_editor = new PixassoSnippetEditor ();
     ((Gtk::Grid *) widget)->attach (*snippet_editor, 0, 0, 1, 1);
+    snippet_editor->set_size_request (300, -1);
 
     preview = new PixassoPreview ();
     ((Gtk::Grid *) widget)->attach (*preview, 1, 0, 1, 1);
+    preview->set_hexpand (true);
 
     history_view = new PixassoHistoryView (history);
     ((Gtk::Grid *) widget)->attach (*history_view, 2, 0, 1, 2);
@@ -69,20 +71,19 @@ PixassoMainWindow::PixassoMainWindow ()
                                                                                    &PixassoMainWindow::on_history_row_activated));
 
     refBuilder->get_widget ("apply-button", widget);
-    widget->set_hexpand (true);
     ((Gtk::Button *) widget)->
         signal_clicked ().connect (sigc::mem_fun (*this,
                                                   &PixassoMainWindow::on_apply_button_clicked));
 
     refBuilder->get_widget ("clear-button", widget);
-    widget->set_hexpand (true);
     ((Gtk::Button *) widget)->
         signal_clicked ().connect (sigc::mem_fun (*this,
                                                   &PixassoMainWindow::on_clear_button_clicked));
 
-    refBuilder->get_widget ("history-button", history_button);
-    history_button->signal_clicked ().connect (sigc::mem_fun (*this,
-                                                              &PixassoMainWindow::on_history_button_clicked));
+    refBuilder->get_widget ("history-button", widget);
+    ((Gtk::ToggleButton *) widget)->set_active (true);
+    ((Gtk::ToggleButton *) widget)->
+        signal_clicked ().connect (sigc::mem_fun (*this, &PixassoMainWindow::on_history_button_clicked));
 }
 
 PixassoMainWindow::~PixassoMainWindow ()

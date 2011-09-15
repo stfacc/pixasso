@@ -42,7 +42,6 @@ private:
     PixassoSnippetEditor *snippet_editor;
     PixassoPreview *preview;
     PixassoHistoryView *history_view;
-    Gtk::Button *history_button;
 
 protected:
     void on_history_row_activated (const Gtk::TreeModel::Path&,

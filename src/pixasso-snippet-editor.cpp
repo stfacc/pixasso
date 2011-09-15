@@ -63,6 +63,10 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
     refBuilder->get_widget ("toolitem-style-combo", widget);
     ((Gtk::Container *) widget)->add (*mathModeCombo);
 
+    // We need to set this explicitly to override hexpand=true
+    // of the ScrolledWindow child
+    set_hexpand (false);
+
     set_default ();
 }
 
