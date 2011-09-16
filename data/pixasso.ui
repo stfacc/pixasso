@@ -22,7 +22,7 @@
       <object class="GtkGrid" id="left-button-grid">
 	<property name="visible">True</property>
 	<property name="can_focus">False</property>
-	<property name="row_spacing">10</property>
+	<property name="column_spacing">10</property>
 	<child>
 	  <object class="GtkButton" id="clear-button">
 	    <property name="label" translatable="yes">Clear</property>
