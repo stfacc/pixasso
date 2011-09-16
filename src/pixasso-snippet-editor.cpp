@@ -91,6 +91,6 @@ void
 PixassoSnippetEditor::fill_with_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
     fontEntry->set_text (snippet->get_font_size ());
-    mathModeCombo->set_active_text (snippet->get_math_mode ());
+    mathModeCombo->get_active_id (snippet->get_math_mode ());
     textView->get_buffer ()->set_text (snippet->get_latex_body ());
 }

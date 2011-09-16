@@ -4,3 +4,4 @@
 [type: gettext/glade]data/pixasso.ui
 [type: gettext/glade]data/pixasso-snippet-editor.ui
 src/pixasso-history-view.cpp
+src/pixasso-snippet.cpp

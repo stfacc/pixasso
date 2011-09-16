@@ -32,24 +32,17 @@ PixassoMathModeCombo::PixassoMathModeCombo ()
     for (i = PixassoSnippet::math_mode_map.begin ();
          i != PixassoSnippet::math_mode_map.end ();
          i++)
-        append (i->first);
+        append (i->first, i->second.display_id);
 }
 
 void
 PixassoMathModeCombo::set_default ()
 {
-    set_active_text (PixassoSnippet::math_mode_map.begin ()->first);
+    get_active_id (PixassoSnippet::math_mode_map.begin ()->first);
 }
 
 Glib::ustring
 PixassoMathModeCombo::get_active_math_mode ()
 {
-    // Should just be:
-    //   return get_active_text ();
-    // which does not work because of a bug in GTK 3.0
-
-    Gtk::TreeRow row = *(get_active ());
-    Glib::ustring s;
-    row.get_value (0, s);
-    return s;
+    return get_active_id ();
 }

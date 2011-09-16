@@ -33,6 +33,7 @@ public:
     typedef struct {
         Glib::ustring prefix;
         Glib::ustring suffix;
+        Glib::ustring display_id;
     } MathMode;
 
     typedef std::map<Glib::ustring, MathMode> MathModeMap;

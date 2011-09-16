@@ -24,12 +24,8 @@ pixasso_SOURCES = \
 	pixasso-utils.cpp		\
 	pixasso-utils.h
 
-pixasso_CPPFLAGS = \
-	$(GTK_CFLAGS)		\
-	$(POPPLER_GLIB_CFLAGS)
+pixasso_CPPFLAGS = $(PIXASSO_CFLAGS)
 
-pixasso_LDFLAGS = \
-	$(GTK_LIBS)		\
-	$(POPPLER_GLIB_LIBS)
+pixasso_LDFLAGS = $(PIXASSO_LIBS)
 
 LDADD = $(LIBINTL)

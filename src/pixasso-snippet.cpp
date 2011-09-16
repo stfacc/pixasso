@@ -29,6 +29,7 @@
 #include <iostream>
 #include <giomm/file.h>
 #include <glibmm.h>
+#include <glib/gi18n.h>
 #include <poppler.h>
 
 
@@ -68,12 +69,15 @@ static PixassoSnippet::MathModeMap
 create_math_mode_map ()
 {
     PixassoSnippet::MathModeMap m;
-    m["Display"].prefix = "\\[";
-    m["Display"].suffix = "\\]";
-    m["Inline"].prefix = "\\(";
-    m["Inline"].suffix = "\\)";
-    m["Text"].prefix = " ";
-    m["Text"].suffix = " ";
+    m["display"].prefix = "\\[";
+    m["display"].suffix = "\\]";
+    m["display"].display_id = _("Display");
+    m["inline"].prefix = "\\(";
+    m["inline"].suffix = "\\)";
+    m["inline"].display_id = _("Inline");
+    m["text"].prefix = " ";
+    m["text"].suffix = " ";
+    m["text"].display_id = _("Text");
     return m;
 }
 
