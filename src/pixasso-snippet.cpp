@@ -26,16 +26,18 @@
 #include "pixasso-utils.h"
 
 #include <cairomm/context.h>
-#include <iostream>
 #include <giomm/file.h>
-#include <glibmm.h>
 #include <glib/gi18n.h>
+#include <glibmm.h>
+#include <iostream>
 #include <poppler.h>
 
 
 #define PDF_FILENAME "a.pdf"
+
 #define LATEX_FILENAME "a.tex"
 #define LATEX_BODY_FILENAME "b.tex"
+
 #define KEYFILE_FILENAME "snippet.ini"
 
 #define KEYFILE_GROUP "Snippet"
@@ -53,6 +55,7 @@ public:
     Glib::ustring font_size;
     Glib::ustring latex_body;
     Glib::ustring math_mode;
+    Glib::ustring latex_full;
 
     int format;
     double cached_zoom_factor;
@@ -61,6 +64,7 @@ public:
 
     bool generated;
     void generate ();
+    void generate_latex_full ();
 
     bool remove_data_on_delete;
 };
@@ -156,6 +160,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
     priv->preamble_name = keyfile.get_string (KEYFILE_GROUP, KEYFILE_PREAMBLE);
     priv->font_size = keyfile.get_string (KEYFILE_GROUP, KEYFILE_FONT_SIZE);
     priv->math_mode = keyfile.get_string (KEYFILE_GROUP, KEYFILE_MATH_MODE);
+    priv->generate_latex_full ();
 
     filename = Glib::build_filename (priv->data_dir, PDF_FILENAME);
     priv->poppler_page = poppler_page_get_first_from_file (filename);
@@ -271,6 +276,12 @@ PixassoSnippet::get_latex_body ()
     return priv->latex_body;
 }
 
+Glib::ustring
+PixassoSnippet::get_latex_full ()
+{
+    return priv->latex_full;
+}
+
 bool
 PixassoSnippet::is_generated ()
 {
@@ -278,28 +289,34 @@ PixassoSnippet::is_generated ()
 }
 
 void
+PixassoSnippet::Private::generate_latex_full ()
+{
+    if (preamble_name != "default")
+        throw;
+
+    latex_full =
+        "\\documentclass{article}"
+        "\\pagestyle{empty}"
+        "\\usepackage{amsmath,amssymb,amsfonts}"
+        "\\usepackage{fix-cm}"
+        "\\begin{document} "
+        "\\fontsize{" + font_size + "}{" + font_size + "}\\selectfont" +
+        math_mode_map[math_mode].prefix +
+        latex_body +
+        math_mode_map[math_mode].suffix +
+        "\\end{document}";
+}
+
+void
 PixassoSnippet::Private::generate ()
 {
-    Glib::ustring latex_full;
     Glib::ustring source_path;
     Glib::RefPtr<Gio::File> source_file;
 
     if (generated)
         return;
 
-    if (preamble_name == "default") {
-        latex_full =
-            "\\documentclass{article}"
-            "\\pagestyle{empty}"
-            "\\usepackage{amsmath,amssymb,amsfonts}"
-            "\\usepackage{fix-cm}"
-            "\\begin{document} "
-            "\\fontsize{" + font_size + "}{" + font_size + "}\\selectfont" +
-            math_mode_map[math_mode].prefix +
-            latex_body +
-            math_mode_map[math_mode].suffix +
-            "\\end{document}";
-    }
+    generate_latex_full ();
 
     Glib::file_set_contents (LATEX_FILENAME, latex_full);
 

@@ -51,6 +51,7 @@ public:
     Glib::ustring get_font_size ();
     Glib::ustring get_math_mode ();
     Glib::ustring get_latex_body ();
+    Glib::ustring get_latex_full ();
 
     void set_export_format ();
     void set_remove_data_on_delete (bool);
@@ -59,6 +60,7 @@ public:
     double get_height ();
     bool is_generated ();
     void render (Cairo::RefPtr<Cairo::Context>, double);
+
 private:
     class Private;
     Private *priv;
