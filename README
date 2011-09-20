@@ -1,4 +1,16 @@
+What is it?
+-----------
+
 PiXasso is an easy-to-use application which typesets snippets
 of LaTeX code and creates pictures exportable in various formats
-via drag-and-drop.
+via drag-and-drop. Once created, snippets remain available
+in the history and can be reused or modified.
 
+
+How do I pronounce "PiXasso"?
+-----------------------------
+
+The "X" in PiXasso is the greek capital letter "chi", the same
+appearing in TeX and LaTeX and, of course, it is pronounced
+in the same way. So, PiXasso is read as the painter Picasso,
+that is: pee-kah-sso.
