@@ -45,6 +45,109 @@
 #define KEYFILE_FONT_SIZE "font-size"
 #define KEYFILE_MATH_MODE "math-mode"
 
+/********************************************************************/
+/*                                                                  */
+/*  Snippet Exporters                                               */
+/*                                                                  */
+/********************************************************************/
+
+/*
+ * To add a new exporter Foo:
+ *  - implement a class SnippetExporterFoo
+ *  - add a memeber Snippet::exporter_foo of type SnippetExporterFoo
+ *  - add EXPORT_FOO to Snippet::ExportFormat enum
+ *  - add a case EXPORT_FOO to Snippet::get_exporter
+ *  - add export_foo = new (SnippetExportFoo (*this)) to Snippet::setup_exporters
+ *  - add delete export_foo to Snippet::~Snippet
+ */
+
+class SnippetExporterPlainText : public SnippetExporter
+{
+public:
+    SnippetExporterPlainText (PixassoSnippet &snippet) : SnippetExporter (snippet)
+    {}
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/plain"; }
+
+    virtual bool is_generated ()
+    { return snippet.is_generated (); }
+
+    virtual gchar *get_data ()
+    {
+        if (!is_generated ())
+            return NULL;  // This should not happen
+
+        return g_strdup (snippet.get_latex_full ().c_str ());
+    }
+};
+
+class SnippetExporterPdfUri : public SnippetExporter
+{
+public:
+    SnippetExporterPdfUri (PixassoSnippet &snippet) : SnippetExporter (snippet)
+    {}
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/uri-list"; }
+
+    virtual bool is_generated ()
+    { return snippet.is_generated (); }
+
+    virtual gchar *get_data ()
+    {
+        if (!is_generated ())
+            return NULL;  // This should not happen
+
+        Glib::ustring uri;
+        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), PDF_FILENAME));
+        return g_strdup (uri.c_str ());
+    }
+};
+
+class SnippetExporterEpsUri : public SnippetExporter
+{
+#define EPS_FILENAME "a.eps"
+public:
+    SnippetExporterEpsUri (PixassoSnippet &snippet) : SnippetExporter (snippet)
+    {
+        generated = Glib::file_test (Glib::build_filename (snippet.get_data_dir (), EPS_FILENAME),
+                                     Glib::FILE_TEST_EXISTS);
+    }
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/uri-list"; }
+
+    virtual bool is_generated ()
+    { return generated; }
+
+    virtual gchar *get_data ()
+    {
+        if (!is_generated ())
+            generate ();
+
+        Glib::ustring uri;
+        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), EPS_FILENAME));
+        return g_strdup (uri.c_str ());
+    }
+private:
+    bool generated;
+    void generate ()
+    {
+        Glib::ustring cmdline =
+            "pdftops -eps " +
+            Glib::build_filename (snippet.get_data_dir (), PDF_FILENAME) + " " +
+            Glib::build_filename (snippet.get_data_dir (), EPS_FILENAME);
+        Glib::spawn_command_line_sync (cmdline);
+    }
+};
+
+
+/********************************************************************/
+/*                                                                  */
+/*  Snippet                                                         */
+/*                                                                  */
+/********************************************************************/
 
 class PixassoSnippet::Private {
 public:
@@ -57,7 +160,6 @@ public:
     Glib::ustring math_mode;
     Glib::ustring latex_full;
 
-    int format;
     double cached_zoom_factor;
     PopplerPage *poppler_page;
     Cairo::RefPtr<Cairo::Surface> cached_surface;
@@ -137,6 +239,8 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
     priv->cached_zoom_factor = -1;
 
     priv->generate ();
+
+    setup_exporters ();
 }
 
 // Create a PixassoSnippet from a directory name
@@ -170,16 +274,45 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
         priv->generated = true;
     else
         throw std::runtime_error ("PixassoSnippet: poppler_page is NULL");
+
+    setup_exporters ();
+}
+
+void
+PixassoSnippet::setup_exporters ()
+{
+    exporter_plain_text = new SnippetExporterPlainText (*this);
+    exporter_pdf_uri = new SnippetExporterPdfUri (*this);
+    exporter_eps_uri = new SnippetExporterEpsUri (*this);
 }
 
 PixassoSnippet::~PixassoSnippet ()
 {
+    delete exporter_plain_text;
+    delete exporter_eps_uri;
+    delete exporter_pdf_uri;
+
     if (priv->remove_data_on_delete) {
         g_debug ("PixassoSnippet: deleting %s", priv->data_dir.c_str ());
         Pixasso::remove_dir (priv->data_dir);
     }
 
     delete priv;
+}
+
+SnippetExporter *
+PixassoSnippet::get_exporter (PixassoSnippet::ExportFormat format)
+{
+    switch (format) {
+    case EXPORT_PLAIN_TEXT:
+        return exporter_plain_text;
+    case EXPORT_EPS_URI:
+        return exporter_eps_uri;
+    case EXPORT_PDF_URI:
+        return exporter_pdf_uri;
+    default:
+        return NULL;
+    }
 }
 
 void
@@ -233,11 +366,6 @@ PixassoSnippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
 
     cr->set_source (priv->cached_surface, 0, 0);
     cr->paint ();
-}
-
-void
-PixassoSnippet::set_export_format ()
-{
 }
 
 time_t

@@ -22,19 +22,44 @@
 #ifndef PIXASSO_SNIPPET_H
 #define PIXASSO_SNIPPET_H
 
-#include <glibmm/object.h>
-#include <glibmm/ustring.h>
 #include <cairomm/context.h>
+#include <glibmm/convert.h>
+#include <glibmm/fileutils.h>
+#include <glibmm/miscutils.h>
+#include <glibmm/object.h>
+#include <glibmm/spawn.h>
+#include <glibmm/ustring.h>
 #include <map>
+
+
+class SnippetExporter;
+class SnippetExporterPlainText;
+class SnippetExporterEpsUri;
+class SnippetExporterPdfUri;
 
 class PixassoSnippet : public Glib::Object
 {
 public:
+    typedef enum {
+        // Plain text is always the first
+        EXPORT_PLAIN_TEXT,
+
+        // Keep the following in alphabetical order
+        EXPORT_EPS_URI,
+        EXPORT_PDF_URI,
+
+        N_EXPORT
+    } ExportFormat;
+
     typedef struct {
         Glib::ustring prefix;
         Glib::ustring suffix;
         Glib::ustring display_id;
     } MathMode;
+
+    SnippetExporterPlainText *exporter_plain_text;
+    SnippetExporterEpsUri *exporter_eps_uri;
+    SnippetExporterPdfUri *exporter_pdf_uri;
 
     typedef std::map<Glib::ustring, MathMode> MathModeMap;
 
@@ -53,7 +78,8 @@ public:
     Glib::ustring get_latex_body ();
     Glib::ustring get_latex_full ();
 
-    void set_export_format ();
+    SnippetExporter *get_exporter (ExportFormat);
+
     void set_remove_data_on_delete (bool);
 
     double get_width ();
@@ -62,8 +88,26 @@ public:
     void render (Cairo::RefPtr<Cairo::Context>, double);
 
 private:
+    void setup_exporters ();
+
     class Private;
     Private *priv;
+};
+
+class SnippetExporter
+{
+public:
+    SnippetExporter (PixassoSnippet &x) : snippet (x)
+    {}
+    virtual Glib::ustring get_mime_type () const
+    {};
+    virtual gchar *get_data ()
+    {};
+    virtual bool is_generated ()
+    {};
+
+protected:
+    PixassoSnippet &snippet;
 };
 
 #endif
