@@ -50,6 +50,13 @@ PixassoPreview::PixassoPreview (Glib::RefPtr<PixassoSnippet> &snippet)
 void
 PixassoPreview::setup_preview ()
 {
+    dnd_targets.push_back (Gtk::TargetEntry ("text/uri-list"));
+
+    area->signal_drag_begin ()
+        .connect (sigc::mem_fun (*this, &PixassoPreview::on_area_drag_begin));
+    area->signal_drag_data_get ()
+        .connect (sigc::mem_fun (*this, &PixassoPreview::on_area_drag_data_get));
+
     scrolled.add (*area);
     scrolled.signal_event ()
         .connect (sigc::mem_fun (*this, &PixassoPreview::on_event_cb));
@@ -99,7 +106,41 @@ void
 PixassoPreview::set_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
     (*this).snippet = snippet;
+    area->drag_source_set (dnd_targets);
     area->queue_resize ();
+}
+
+void
+PixassoPreview::on_area_drag_begin (const Glib::RefPtr<Gdk::DragContext>& context)
+{
+    Cairo::RefPtr<Cairo::Surface> surface;
+    Cairo::RefPtr<Cairo::Context> cr;
+    int width = ceil (snippet->get_width ());
+    int height = ceil (snippet->get_height ());
+
+    surface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32, width , height);
+    cr = Cairo::Context::create (surface);
+    snippet->render (cr, 1);
+    context->set_icon (surface);
+}
+
+void
+PixassoPreview::on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& /* context */,
+                                       Gtk::SelectionData& selection_data,
+                                       guint /* info */,
+                                       guint /* time */)
+{
+    gchar *data;
+    SnippetExporter *exporter = snippet->get_exporter (PixassoSnippet::EXPORT_EPS_URI);
+
+    if (!(data = exporter->get_data ()))
+        return;
+
+    selection_data.set (exporter->get_mime_type (),
+                        8,
+                        (const guchar*) data,
+                        strlen (data));
+    g_free (data);
 }
 
 void
@@ -107,6 +148,7 @@ PixassoPreview::clear ()
 {
     snippet.reset ();
     set_zoom_100 ();
+    area->drag_source_unset ();
     area->queue_draw ();
 }
 
@@ -172,6 +214,7 @@ PixassoPreview::on_zoom_cb ()
     double zoom = property_zoom ();
     zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), zoom * 100) + "%");
 }
+
 
 void
 PixassoPreview::Area::get_preferred_width_vfunc (int& minimum_width,

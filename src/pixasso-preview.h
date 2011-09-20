@@ -63,6 +63,7 @@ private:
 
     Gtk::ScrolledWindow scrolled;
 
+    std::vector<Gtk::TargetEntry> dnd_targets;
     Glib::RefPtr<PixassoSnippet> snippet;
     Glib::Property<double> prop_zoom;
 
@@ -75,6 +76,12 @@ private:
     void setup_preview ();
     bool on_event_cb (GdkEvent *);
     void on_zoom_cb ();
+
+    void on_area_drag_begin (const Glib::RefPtr< Gdk::DragContext >& context);
+    void on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& context,
+                                Gtk::SelectionData& selection_data,
+                                guint info,
+                                guint time);
 };
 
 #endif
