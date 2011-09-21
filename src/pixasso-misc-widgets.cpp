@@ -25,24 +25,25 @@
 
 #include <gtkmm/comboboxtext.h>
 
+using namespace Pixasso;
 
-PixassoMathModeCombo::PixassoMathModeCombo ()
+MathModeCombo::MathModeCombo ()
 {
-    PixassoSnippet::MathModeMap::iterator i;
-    for (i = PixassoSnippet::math_mode_map.begin ();
-         i != PixassoSnippet::math_mode_map.end ();
+    Snippet::MathModeMap::iterator i;
+    for (i = Snippet::math_mode_map.begin ();
+         i != Snippet::math_mode_map.end ();
          i++)
         append (i->first, i->second.display_id);
 }
 
 void
-PixassoMathModeCombo::set_default ()
+MathModeCombo::set_default ()
 {
-    get_active_id (PixassoSnippet::math_mode_map.begin ()->first);
+    get_active_id (Snippet::math_mode_map.begin ()->first);
 }
 
 Glib::ustring
-PixassoMathModeCombo::get_active_math_mode ()
+MathModeCombo::get_active_math_mode ()
 {
     return get_active_id ();
 }

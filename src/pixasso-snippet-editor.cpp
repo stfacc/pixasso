@@ -32,7 +32,9 @@
 #define DEFAULT_FONT_SIZE "14pt"
 #define DEFAULT_COLOR "Black"
 
-PixassoSnippetEditor::PixassoSnippetEditor ()
+using namespace Pixasso;
+
+SnippetEditor::SnippetEditor ()
 {
     Glib::RefPtr<Gtk::Builder> refBuilder;
     Gtk::Widget *widget;
@@ -59,7 +61,7 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 
     attach (*widget, 0, 1, 1, 1);
 
-    mathModeCombo = new PixassoMathModeCombo ();
+    mathModeCombo = new MathModeCombo ();
     mathModeCombo->show ();
     refBuilder->get_widget ("toolitem-style-combo", widget);
     ((Gtk::Container *) widget)->add (*mathModeCombo);
@@ -72,7 +74,7 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 }
 
 void
-PixassoSnippetEditor::set_default ()
+SnippetEditor::set_default ()
 {
     textView->get_buffer ()->set_text ("");
     fontEntry->set_text (DEFAULT_FONT_SIZE);
@@ -80,18 +82,18 @@ PixassoSnippetEditor::set_default ()
     mathModeCombo->set_default ();
 }
 
-Glib::RefPtr<PixassoSnippet>
-PixassoSnippetEditor::create_snippet ()
+Glib::RefPtr<Snippet>
+SnippetEditor::create_snippet ()
 {
-    return Glib::RefPtr<PixassoSnippet> (new PixassoSnippet ("default",
-                                                             fontEntry->get_text (),
-                                                             colorButton->get_rgba (),
-                                                             mathModeCombo->get_active_math_mode (),
-                                                             textView->get_buffer ()->get_text () ));
+    return Glib::RefPtr<Snippet> (new Snippet ("default",
+                                               fontEntry->get_text (),
+                                               colorButton->get_rgba (),
+                                               mathModeCombo->get_active_math_mode (),
+                                               textView->get_buffer ()->get_text () ));
 }
 
 void
-PixassoSnippetEditor::fill_with_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
+SnippetEditor::fill_with_snippet (Glib::RefPtr<Snippet> &snippet)
 {
     fontEntry->set_text (snippet->get_font_size ());
     colorButton->set_rgba (snippet->get_color ());

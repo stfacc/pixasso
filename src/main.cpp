@@ -42,7 +42,7 @@ int main (int argc, char **argv)
     chdir (tmpdir.c_str ());
     g_debug ("Working in: %s", tmpdir.c_str ());
 
-    PixassoMainWindow window;
+    Pixasso::MainWindow window;
     kit.run (window);
 
     Pixasso::remove_dir (tmpdir);

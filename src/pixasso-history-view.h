@@ -28,10 +28,14 @@
 #include <gtkmm/liststore.h>
 #include <gtkmm/treeview.h>
 
-class PixassoHistoryView : public Gtk::ScrolledWindow
+
+namespace Pixasso
+{
+
+class HistoryView : public Gtk::ScrolledWindow
 {
 public:
-    PixassoHistoryView (Glib::RefPtr<PixassoHistory> &);
+    HistoryView (Glib::RefPtr<History> &);
     Gtk::TreeView *get_treeview ();
 
 protected:
@@ -39,5 +43,7 @@ protected:
     void on_row_selected ();
     void on_row_activated (const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);
 };
+
+} /* end namespace Pixasso */
 
 #endif

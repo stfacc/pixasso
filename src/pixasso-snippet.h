@@ -33,13 +33,16 @@
 #include <map>
 
 
+namespace Pixasso
+{
+
 class SnippetExporter;
 class SnippetExporterPlainText;
 class SnippetExporterEpsUri;
 class SnippetExporterPdfUri;
 class SnippetExporterPngUri;
 
-class PixassoSnippet : public Glib::Object
+class Snippet : public Glib::Object
 {
 public:
     typedef enum {
@@ -69,14 +72,14 @@ public:
 
     static MathModeMap math_mode_map;
 
-    PixassoSnippet (Glib::ustring  /* preamble name */,
+    Snippet (Glib::ustring  /* preamble name */,
                     Glib::ustring  /* font size */,
                     Gdk::RGBA      /* color */,
                     Glib::ustring  /* math mode */,
                     Glib::ustring  /* latex body */);
 
-    PixassoSnippet (Glib::ustring);
-    ~PixassoSnippet ();
+    Snippet (Glib::ustring);
+    ~Snippet ();
 
     Glib::ustring get_data_dir ();
     time_t get_creation_time ();
@@ -107,7 +110,7 @@ private:
 class SnippetExporter
 {
 public:
-    SnippetExporter (PixassoSnippet &x) : snippet (x)
+    SnippetExporter (Snippet &x) : snippet (x)
     {}
     virtual Glib::ustring get_mime_type () const
     {};
@@ -117,7 +120,9 @@ public:
     {};
 
 protected:
-    PixassoSnippet &snippet;
+    Snippet &snippet;
 };
+
+} /* end namespace Pixasso */
 
 #endif

@@ -30,18 +30,21 @@
 #include <gtkmm/window.h>
 
 
-class PixassoMainWindow : public Gtk::Window
+namespace Pixasso
+{
+
+class MainWindow : public Gtk::Window
 {
 public:
-    PixassoMainWindow ();
-    ~PixassoMainWindow ();
+    MainWindow ();
+    ~MainWindow ();
 
 private:
-    Glib::RefPtr<PixassoHistory> history;
+    Glib::RefPtr<History> history;
 
-    PixassoSnippetEditor *snippet_editor;
-    PixassoPreview *preview;
-    PixassoHistoryView *history_view;
+    SnippetEditor *snippet_editor;
+    Preview *preview;
+    HistoryView *history_view;
 
 protected:
     void on_history_row_activated (const Gtk::TreeModel::Path&,
@@ -50,5 +53,7 @@ protected:
     void on_clear_button_clicked ();
     void on_history_button_clicked ();
 };
+
+} /* end namespace Pixasso */
 
 #endif

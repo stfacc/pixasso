@@ -28,7 +28,10 @@
 #include <gtkmm/treemodelcolumn.h>
 
 
-class PixassoHistory : public Gtk::ListStore
+namespace Pixasso
+{
+
+class History : public Gtk::ListStore
 {
 public:
     enum {
@@ -37,9 +40,9 @@ public:
         N_COLUMNS
     };
 
-    PixassoHistory ();
-    ~PixassoHistory ();
-    void prepend_snippet (Glib::RefPtr<PixassoSnippet> &snippet);
+    History ();
+    ~History ();
+    void prepend_snippet (Glib::RefPtr<Snippet> &snippet);
 
 protected:
     void populate ();
@@ -50,11 +53,13 @@ protected:
         ModelColumns()
         { add (m_Snippet); add (m_LatexBody); }
 
-        Gtk::TreeModelColumn< Glib::RefPtr<PixassoSnippet> > m_Snippet;
+        Gtk::TreeModelColumn< Glib::RefPtr<Snippet> > m_Snippet;
         Gtk::TreeModelColumn< Glib::ustring > m_LatexBody;
     };
 
     ModelColumns m_Columns;
 };
+
+} /* end namespace Pixasso */
 
 #endif

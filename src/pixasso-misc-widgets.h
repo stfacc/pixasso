@@ -26,11 +26,16 @@
 
 #include "pixasso-snippet.h"
 
-class PixassoMathModeCombo : public Gtk::ComboBoxText {
+namespace Pixasso
+{
+
+class MathModeCombo : public Gtk::ComboBoxText {
 public:
-    PixassoMathModeCombo ();
+    MathModeCombo ();
     void set_default ();
     Glib::ustring get_active_math_mode ();
 };
+
+} /* end namespace Pixasso */
 
 #endif

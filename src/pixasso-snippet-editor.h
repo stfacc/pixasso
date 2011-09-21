@@ -27,19 +27,23 @@
 
 #include <gtkmm.h>
 
+namespace Pixasso
+{
 
-class PixassoSnippetEditor : public Gtk::Grid {
+class SnippetEditor : public Gtk::Grid {
 public:
-    PixassoSnippetEditor ();
+    SnippetEditor ();
     void set_default ();
-    Glib::RefPtr<PixassoSnippet> create_snippet ();
-    void fill_with_snippet (Glib::RefPtr<PixassoSnippet> &);
+    Glib::RefPtr<Snippet> create_snippet ();
+    void fill_with_snippet (Glib::RefPtr<Snippet> &);
 
 private:
     Gtk::TextView *textView;
     Gtk::Entry *fontEntry;
     Gtk::ColorButton *colorButton;
-    PixassoMathModeCombo *mathModeCombo;
+    MathModeCombo *mathModeCombo;
 };
+
+} /* end namespace Pixasso */
 
 #endif

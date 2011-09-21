@@ -32,7 +32,9 @@
 #include <iostream>
 
 
-PixassoMainWindow::PixassoMainWindow ()
+using namespace Pixasso;
+
+MainWindow::MainWindow ()
 {
     Glib::RefPtr<Gtk::Builder> refBuilder;
     Gtk::Widget *widget;
@@ -41,7 +43,7 @@ PixassoMainWindow::PixassoMainWindow ()
     set_border_width (10);
     set_title ("PiXasso");
 
-    history = Glib::RefPtr<PixassoHistory> (new PixassoHistory ());
+    history = Glib::RefPtr<History> (new History ());
 
     try {
         refBuilder = Gtk::Builder::create_from_file (Glib::build_filename (DATADIR, PACKAGE,
@@ -53,40 +55,40 @@ PixassoMainWindow::PixassoMainWindow ()
 
     refBuilder->get_widget ("main-grid", widget);
 
-    snippet_editor = new PixassoSnippetEditor ();
+    snippet_editor = new SnippetEditor ();
     ((Gtk::Grid *) widget)->attach (*snippet_editor, 0, 0, 1, 1);
     snippet_editor->set_size_request (300, -1);
 
-    preview = new PixassoPreview ();
+    preview = new Preview ();
     ((Gtk::Grid *) widget)->attach (*preview, 1, 0, 1, 1);
     preview->set_hexpand (true);
 
-    history_view = new PixassoHistoryView (history);
+    history_view = new HistoryView (history);
     ((Gtk::Grid *) widget)->attach (*history_view, 2, 0, 1, 2);
 
     widget->show_all ();
     add (*widget);
 
     history_view->get_treeview ()->signal_row_activated ().connect (sigc::mem_fun (*this,
-                                                                                   &PixassoMainWindow::on_history_row_activated));
+                                                                                   &MainWindow::on_history_row_activated));
 
     refBuilder->get_widget ("apply-button", widget);
     ((Gtk::Button *) widget)->
         signal_clicked ().connect (sigc::mem_fun (*this,
-                                                  &PixassoMainWindow::on_apply_button_clicked));
+                                                  &MainWindow::on_apply_button_clicked));
 
     refBuilder->get_widget ("clear-button", widget);
     ((Gtk::Button *) widget)->
         signal_clicked ().connect (sigc::mem_fun (*this,
-                                                  &PixassoMainWindow::on_clear_button_clicked));
+                                                  &MainWindow::on_clear_button_clicked));
 
     refBuilder->get_widget ("history-button", widget);
     ((Gtk::ToggleButton *) widget)->set_active (true);
     ((Gtk::ToggleButton *) widget)->
-        signal_clicked ().connect (sigc::mem_fun (*this, &PixassoMainWindow::on_history_button_clicked));
+        signal_clicked ().connect (sigc::mem_fun (*this, &MainWindow::on_history_button_clicked));
 }
 
-PixassoMainWindow::~PixassoMainWindow ()
+MainWindow::~MainWindow ()
 {
     delete snippet_editor;
     delete history_view;
@@ -94,10 +96,10 @@ PixassoMainWindow::~PixassoMainWindow ()
 }
 
 void
-PixassoMainWindow::on_history_row_activated (const Gtk::TreeModel::Path& path,
+MainWindow::on_history_row_activated (const Gtk::TreeModel::Path& path,
                                              Gtk::TreeViewColumn* /* column */)
 {
-    Glib::RefPtr<PixassoSnippet> snippet;
+    Glib::RefPtr<Snippet> snippet;
     (*history_view->get_treeview ()->get_model ()->get_iter (path)).get_value (0, snippet);
     preview->set_snippet (snippet);
     snippet_editor->fill_with_snippet (snippet);
@@ -106,10 +108,10 @@ PixassoMainWindow::on_history_row_activated (const Gtk::TreeModel::Path& path,
 }
 
 void
-PixassoMainWindow::on_apply_button_clicked ()
+MainWindow::on_apply_button_clicked ()
 {
     try {
-        Glib::RefPtr<PixassoSnippet> snippet;
+        Glib::RefPtr<Snippet> snippet;
         snippet = snippet_editor->create_snippet ();
         history->prepend_snippet (snippet);
         preview->set_snippet (snippet);
@@ -119,14 +121,14 @@ PixassoMainWindow::on_apply_button_clicked ()
 }
 
 void
-PixassoMainWindow::on_clear_button_clicked ()
+MainWindow::on_clear_button_clicked ()
 {
     snippet_editor->set_default ();
     preview->clear ();
 }
 
 void
-PixassoMainWindow::on_history_button_clicked ()
+MainWindow::on_history_button_clicked ()
 {
     if (history_view->get_visible ())
         history_view->hide ();

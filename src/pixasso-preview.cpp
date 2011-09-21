@@ -27,18 +27,20 @@
 #include <iomanip>
 
 
-PixassoPreview::PixassoPreview ()
+using namespace Pixasso;
+
+Preview::Preview ()
     : area (new Area (*this)),
-      Glib::ObjectBase (typeid (PixassoPreview)),
+      Glib::ObjectBase (typeid (Preview)),
       prop_zoom (*this, "zoom")
 {
     setup_preview ();
     clear ();
 }
 
-PixassoPreview::PixassoPreview (Glib::RefPtr<PixassoSnippet> &snippet)
+Preview::Preview (Glib::RefPtr<Snippet> &snippet)
     : area (new Area (*this)),
-      Glib::ObjectBase (typeid (PixassoPreview)),
+      Glib::ObjectBase (typeid (Preview)),
       prop_zoom (*this, "zoom")
 {
     setup_preview ();
@@ -48,20 +50,20 @@ PixassoPreview::PixassoPreview (Glib::RefPtr<PixassoSnippet> &snippet)
 #define ZOOM_STEP 2.0
 
 void
-PixassoPreview::setup_preview ()
+Preview::setup_preview ()
 {
     dnd_targets.push_back (Gtk::TargetEntry ("text/uri-list"));
 
     area->signal_drag_begin ()
-        .connect (sigc::mem_fun (*this, &PixassoPreview::on_area_drag_begin));
+        .connect (sigc::mem_fun (*this, &Preview::on_area_drag_begin));
     area->signal_drag_data_get ()
-        .connect (sigc::mem_fun (*this, &PixassoPreview::on_area_drag_data_get));
+        .connect (sigc::mem_fun (*this, &Preview::on_area_drag_data_get));
 
     scrolled.add (*area);
     scrolled.signal_event ()
-        .connect (sigc::mem_fun (*this, &PixassoPreview::on_event_cb));
+        .connect (sigc::mem_fun (*this, &Preview::on_event_cb));
     property_zoom ().signal_changed ()
-        .connect (sigc::mem_fun (*this, &PixassoPreview::on_zoom_cb));
+        .connect (sigc::mem_fun (*this, &Preview::on_zoom_cb));
     set_zoom_100 ();
 
     scrolled.set_vexpand (true);
@@ -78,14 +80,14 @@ PixassoPreview::setup_preview ()
     Gtk::ToolButton *tb;
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_OUT));
     toolbar->append (*tb, sigc::bind<double>
-                     (sigc::mem_fun (*this, &PixassoPreview::set_zoom_step), 1 / ZOOM_STEP));
+                     (sigc::mem_fun (*this, &Preview::set_zoom_step), 1 / ZOOM_STEP));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_IN));
     toolbar->append (*tb, sigc::bind<double>
-                     (sigc::mem_fun (*this, &PixassoPreview::set_zoom_step), ZOOM_STEP));
+                     (sigc::mem_fun (*this, &Preview::set_zoom_step), ZOOM_STEP));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_100));
-    toolbar->append (*tb, sigc::mem_fun (*this, &PixassoPreview::set_zoom_100));
+    toolbar->append (*tb, sigc::mem_fun (*this, &Preview::set_zoom_100));
     tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_FIT));
-    toolbar->append (*tb, sigc::mem_fun (*this, &PixassoPreview::set_zoom_fit));
+    toolbar->append (*tb, sigc::mem_fun (*this, &Preview::set_zoom_fit));
 
     Gtk::ToolItem *ti = new Gtk::ToolItem ();
     ti->add (zoom_label);
@@ -97,13 +99,13 @@ PixassoPreview::setup_preview ()
     attach (*toolbar, 0, 1, 1, 1);
 }
 
-PixassoPreview::~PixassoPreview ()
+Preview::~Preview ()
 {
     delete area;
 }
 
 void
-PixassoPreview::set_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
+Preview::set_snippet (Glib::RefPtr<Snippet> &snippet)
 {
     (*this).snippet = snippet;
     area->drag_source_set (dnd_targets);
@@ -111,7 +113,7 @@ PixassoPreview::set_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 }
 
 void
-PixassoPreview::on_area_drag_begin (const Glib::RefPtr<Gdk::DragContext>& context)
+Preview::on_area_drag_begin (const Glib::RefPtr<Gdk::DragContext>& context)
 {
     Cairo::RefPtr<Cairo::Surface> surface;
     Cairo::RefPtr<Cairo::Context> cr;
@@ -125,13 +127,13 @@ PixassoPreview::on_area_drag_begin (const Glib::RefPtr<Gdk::DragContext>& contex
 }
 
 void
-PixassoPreview::on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& /* context */,
-                                       Gtk::SelectionData& selection_data,
-                                       guint /* info */,
-                                       guint /* time */)
+Preview::on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& /* context */,
+                                Gtk::SelectionData& selection_data,
+                                guint /* info */,
+                                guint /* time */)
 {
     gchar *data;
-    SnippetExporter *exporter = snippet->get_exporter (PixassoSnippet::EXPORT_EPS_URI);
+    SnippetExporter *exporter = snippet->get_exporter (Snippet::EXPORT_EPS_URI);
 
     if (!(data = exporter->get_data ()))
         return;
@@ -144,7 +146,7 @@ PixassoPreview::on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& /* 
 }
 
 void
-PixassoPreview::clear ()
+Preview::clear ()
 {
     snippet.reset ();
     set_zoom_100 ();
@@ -156,7 +158,7 @@ PixassoPreview::clear ()
 #define ZOOM_MAX 10.0
 
 void
-PixassoPreview::set_zoom (double zoom)
+Preview::set_zoom (double zoom)
 {
     double real_zoom = CLAMP (zoom, ZOOM_MIN, ZOOM_MAX);
     property_zoom () = real_zoom;
@@ -165,19 +167,19 @@ PixassoPreview::set_zoom (double zoom)
 }
 
 void
-PixassoPreview::set_zoom_step (double step)
+Preview::set_zoom_step (double step)
 {
     set_zoom (property_zoom () * step);
 }
 
 void
-PixassoPreview::set_zoom_100 ()
+Preview::set_zoom_100 ()
 {
     set_zoom (1);
 }
 
 void
-PixassoPreview::set_zoom_fit ()
+Preview::set_zoom_fit ()
 {
     double x_scale_request = scrolled.get_allocated_width () / snippet->get_width ();
     double y_scale_request = scrolled.get_allocated_height () / snippet->get_height ();
@@ -187,7 +189,7 @@ PixassoPreview::set_zoom_fit ()
 #define ZOOM_STEP_ON_SCROLL 1.2
 
 bool
-PixassoPreview::on_event_cb (GdkEvent *e)
+Preview::on_event_cb (GdkEvent *e)
 {
     GdkEventScroll *event;
 
@@ -209,7 +211,7 @@ PixassoPreview::on_event_cb (GdkEvent *e)
 }
 
 void
-PixassoPreview::on_zoom_cb ()
+Preview::on_zoom_cb ()
 {
     double zoom = property_zoom ();
     zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), zoom * 100) + "%");
@@ -217,7 +219,7 @@ PixassoPreview::on_zoom_cb ()
 
 
 void
-PixassoPreview::Area::get_preferred_width_vfunc (int& minimum_width,
+Preview::Area::get_preferred_width_vfunc (int& minimum_width,
                                                  int& natural_width) const
 {
     int w;
@@ -229,7 +231,7 @@ PixassoPreview::Area::get_preferred_width_vfunc (int& minimum_width,
 }
 
 void
-PixassoPreview::Area::get_preferred_height_vfunc (int& minimum_height,
+Preview::Area::get_preferred_height_vfunc (int& minimum_height,
                                                   int& natural_height) const
 {
     int h;
@@ -241,7 +243,7 @@ PixassoPreview::Area::get_preferred_height_vfunc (int& minimum_height,
 }
 
 bool
-PixassoPreview::Area::on_draw (const Cairo::RefPtr< Cairo::Context >& cr)
+Preview::Area::on_draw (const Cairo::RefPtr< Cairo::Context >& cr)
 {
     int min_width;
     int min_height;

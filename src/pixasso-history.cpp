@@ -30,7 +30,9 @@
 #include <iostream>
 
 
-PixassoHistory::PixassoHistory ()
+using namespace Pixasso;
+
+History::History ()
 {
     g_debug ("Creating history list");
     set_column_types (m_Columns);
@@ -38,12 +40,12 @@ PixassoHistory::PixassoHistory ()
     populate ();
 }
 
-PixassoHistory::~PixassoHistory ()
+History::~History ()
 {
 }
 
 void
-PixassoHistory::prepend_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
+History::prepend_snippet (Glib::RefPtr<Snippet> &snippet)
 {
     g_debug ("Creating history element %s: %s --- %fx%f",
              snippet->get_data_dir ().c_str (),
@@ -57,20 +59,20 @@ PixassoHistory::prepend_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 }
 
 void
-PixassoHistory::populate ()
+History::populate ()
 {
     Glib::ustring user_data_dir = Glib::get_user_data_dir ();
     Glib::ustring path = Glib::build_filename (user_data_dir, PACKAGE);
     Glib::Dir dir (path);
 
-    Glib::RefPtr<PixassoSnippet> snippet;
+    Glib::RefPtr<Snippet> snippet;
     Glib::ustring filename;
 
     Glib::DirIterator i;
     for (i = dir.begin (); i != dir.end (); i++) {
         try {
             filename = Glib::build_filename (user_data_dir, PACKAGE, *i);
-            snippet = Glib::RefPtr<PixassoSnippet> (new PixassoSnippet (filename));
+            snippet = Glib::RefPtr<Snippet> (new Snippet (filename));
             prepend_snippet (snippet);
         } catch (Glib::Exception &e) {
             std::cerr << "Error creating history element: " << e.what () << std::endl;

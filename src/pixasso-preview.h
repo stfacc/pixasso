@@ -27,17 +27,20 @@
 #include <gtkmm.h>
 
 
-class PixassoPreview
+namespace Pixasso
+{
+
+class Preview
     : public Gtk::Grid
 {
     class Area
         : public Gtk::DrawingArea
     {
     public:
-        Area (PixassoPreview &x) : parent (x) {}
+        Area (Preview &x) : parent (x) {}
 
     private:
-        PixassoPreview &parent;
+        Preview &parent;
 
     protected:
         virtual bool on_draw (const Cairo::RefPtr< Cairo::Context >& cr);
@@ -46,10 +49,10 @@ class PixassoPreview
     };
 
 public:
-    PixassoPreview ();
-    PixassoPreview (Glib::RefPtr<PixassoSnippet> &);
-    ~PixassoPreview ();
-    void set_snippet (Glib::RefPtr<PixassoSnippet> &);
+    Preview ();
+    Preview (Glib::RefPtr<Snippet> &);
+    ~Preview ();
+    void set_snippet (Glib::RefPtr<Snippet> &);
     void clear ();
 
     const Glib::PropertyProxy_ReadOnly<double> property_zoom () const
@@ -64,7 +67,7 @@ private:
     Gtk::ScrolledWindow scrolled;
 
     std::vector<Gtk::TargetEntry> dnd_targets;
-    Glib::RefPtr<PixassoSnippet> snippet;
+    Glib::RefPtr<Snippet> snippet;
     Glib::Property<double> prop_zoom;
 
     Gtk::Label zoom_label;
@@ -83,5 +86,7 @@ private:
                                 guint info,
                                 guint time);
 };
+
+} /* end namespace Pixasso */
 
 #endif
