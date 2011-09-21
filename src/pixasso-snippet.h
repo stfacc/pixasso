@@ -23,6 +23,7 @@
 #define PIXASSO_SNIPPET_H
 
 #include <cairomm/context.h>
+#include <gdkmm/rgba.h>
 #include <glibmm/convert.h>
 #include <glibmm/fileutils.h>
 #include <glibmm/miscutils.h>
@@ -68,7 +69,12 @@ public:
 
     static MathModeMap math_mode_map;
 
-    PixassoSnippet (Glib::ustring, Glib::ustring, Glib::ustring, Glib::ustring);
+    PixassoSnippet (Glib::ustring  /* preamble name */,
+                    Glib::ustring  /* font size */,
+                    Gdk::RGBA      /* color */,
+                    Glib::ustring  /* math mode */,
+                    Glib::ustring  /* latex body */);
+
     PixassoSnippet (Glib::ustring);
     ~PixassoSnippet ();
 
@@ -77,6 +83,7 @@ public:
 
     Glib::ustring get_preamble_name ();
     Glib::ustring get_font_size ();
+    Gdk::RGBA get_color ();
     Glib::ustring get_math_mode ();
     Glib::ustring get_latex_body ();
     Glib::ustring get_latex_full ();

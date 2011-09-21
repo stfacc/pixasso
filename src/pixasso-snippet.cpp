@@ -26,6 +26,7 @@
 #include "pixasso-utils.h"
 
 #include <cairomm/context.h>
+#include <gdkmm/rgba.h>
 #include <giomm/file.h>
 #include <glib/gi18n.h>
 #include <glibmm.h>
@@ -43,6 +44,7 @@
 #define KEYFILE_GROUP "Snippet"
 #define KEYFILE_PREAMBLE "preamble"
 #define KEYFILE_FONT_SIZE "font-size"
+#define KEYFILE_COLOR "color"
 #define KEYFILE_MATH_MODE "math-mode"
 
 /********************************************************************/
@@ -198,6 +200,7 @@ public:
 
     Glib::ustring preamble_name;
     Glib::ustring font_size;
+    Gdk::RGBA color;
     Glib::ustring latex_body;
     Glib::ustring math_mode;
     Glib::ustring latex_full;
@@ -238,6 +241,7 @@ static PopplerPage *poppler_page_get_first_from_file (Glib::ustring path);
 // Create a PixassoSnippet from various latex data
 PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
                                 Glib::ustring font_size,
+                                Gdk::RGBA color,
                                 Glib::ustring math_mode,
                                 Glib::ustring latex_body)
     : priv (new Private ())
@@ -275,6 +279,9 @@ PixassoSnippet::PixassoSnippet (Glib::ustring preamble_name,
     priv->font_size = font_size;
     keyfile.set_string (KEYFILE_GROUP, KEYFILE_FONT_SIZE, font_size);
 
+    priv->color = color;
+    keyfile.set_string (KEYFILE_GROUP, KEYFILE_COLOR, color.to_string ());
+
     filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
     Glib::file_set_contents (filename, keyfile.to_data ());
 
@@ -305,6 +312,7 @@ PixassoSnippet::PixassoSnippet (Glib::ustring dir_name)
     keyfile.load_from_file (filename, Glib::KEY_FILE_NONE);
     priv->preamble_name = keyfile.get_string (KEYFILE_GROUP, KEYFILE_PREAMBLE);
     priv->font_size = keyfile.get_string (KEYFILE_GROUP, KEYFILE_FONT_SIZE);
+    priv->color.set (keyfile.get_string (KEYFILE_GROUP, KEYFILE_COLOR));
     priv->math_mode = keyfile.get_string (KEYFILE_GROUP, KEYFILE_MATH_MODE);
     priv->generate_latex_full ();
 
@@ -438,6 +446,12 @@ PixassoSnippet::get_font_size ()
     return priv->font_size;
 }
 
+Gdk::RGBA
+PixassoSnippet::get_color ()
+{
+    return priv->color;
+}
+
 Glib::ustring
 PixassoSnippet::get_math_mode ()
 {
@@ -468,13 +482,21 @@ PixassoSnippet::Private::generate_latex_full ()
     if (preamble_name != "default")
         throw;
 
+    Glib::ustring color_str = Glib::ustring::compose ("%1,%2,%3",
+                                                      color.get_red (),
+                                                      color.get_green (),
+                                                      color.get_blue ());
+
     latex_full =
         "\\documentclass{article}"
         "\\pagestyle{empty}"
         "\\usepackage{amsmath,amssymb,amsfonts}"
         "\\usepackage{fix-cm}"
+        "\\usepackage{color}"
+        "\\definecolor{pixasso-color}{rgb}{" + color_str + "}"
         "\\begin{document} "
         "\\fontsize{" + font_size + "}{" + font_size + "}\\selectfont" +
+        "\\color{pixasso-color}" +
         math_mode_map[math_mode].prefix +
         latex_body +
         math_mode_map[math_mode].suffix +
