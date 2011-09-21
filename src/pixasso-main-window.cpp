@@ -39,7 +39,7 @@ PixassoMainWindow::PixassoMainWindow ()
 
     set_default_size (800, 400);
     set_border_width (10);
-    //set_title ("PiXasso");
+    set_title ("PiXasso");
 
     history = Glib::RefPtr<PixassoHistory> (new PixassoHistory ());
 
