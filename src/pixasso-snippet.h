@@ -36,6 +36,7 @@ class SnippetExporter;
 class SnippetExporterPlainText;
 class SnippetExporterEpsUri;
 class SnippetExporterPdfUri;
+class SnippetExporterPngUri;
 
 class PixassoSnippet : public Glib::Object
 {
@@ -47,6 +48,7 @@ public:
         // Keep the following in alphabetical order
         EXPORT_EPS_URI,
         EXPORT_PDF_URI,
+        EXPORT_PNG_URI,
 
         N_EXPORT
     } ExportFormat;
@@ -60,6 +62,7 @@ public:
     SnippetExporterPlainText *exporter_plain_text;
     SnippetExporterEpsUri *exporter_eps_uri;
     SnippetExporterPdfUri *exporter_pdf_uri;
+    SnippetExporterPngUri *exporter_png_uri;
 
     typedef std::map<Glib::ustring, MathMode> MathModeMap;
 

@@ -82,29 +82,6 @@ public:
     }
 };
 
-class SnippetExporterPdfUri : public SnippetExporter
-{
-public:
-    SnippetExporterPdfUri (PixassoSnippet &snippet) : SnippetExporter (snippet)
-    {}
-
-    virtual Glib::ustring get_mime_type () const
-    { return "text/uri-list"; }
-
-    virtual bool is_generated ()
-    { return snippet.is_generated (); }
-
-    virtual gchar *get_data ()
-    {
-        if (!is_generated ())
-            return NULL;  // This should not happen
-
-        Glib::ustring uri;
-        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), PDF_FILENAME));
-        return g_strdup (uri.c_str ());
-    }
-};
-
 class SnippetExporterEpsUri : public SnippetExporter
 {
 #define EPS_FILENAME "a.eps"
@@ -139,6 +116,71 @@ private:
             Glib::build_filename (snippet.get_data_dir (), PDF_FILENAME) + " " +
             Glib::build_filename (snippet.get_data_dir (), EPS_FILENAME);
         Glib::spawn_command_line_sync (cmdline);
+    }
+};
+
+class SnippetExporterPdfUri : public SnippetExporter
+{
+public:
+    SnippetExporterPdfUri (PixassoSnippet &snippet) : SnippetExporter (snippet)
+    {}
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/uri-list"; }
+
+    virtual bool is_generated ()
+    { return snippet.is_generated (); }
+
+    virtual gchar *get_data ()
+    {
+        if (!is_generated ())
+            return NULL;  // This should not happen
+
+        Glib::ustring uri;
+        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), PDF_FILENAME));
+        return g_strdup (uri.c_str ());
+    }
+};
+
+
+class SnippetExporterPngUri : public SnippetExporter
+{
+#define PNG_FILENAME "a.png"
+public:
+    SnippetExporterPngUri (PixassoSnippet &snippet) : SnippetExporter (snippet)
+    {
+        generated = Glib::file_test (Glib::build_filename (snippet.get_data_dir (), PNG_FILENAME),
+                                     Glib::FILE_TEST_EXISTS);
+    }
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/uri-list"; }
+
+    virtual bool is_generated ()
+    { return generated; }
+
+    virtual gchar *get_data ()
+    {
+        if (!is_generated ())
+            generate ();
+
+        Glib::ustring uri;
+        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), PNG_FILENAME));
+        return g_strdup (uri.c_str ());
+    }
+private:
+    bool generated;
+    void generate ()
+    {
+        Cairo::RefPtr<Cairo::Surface> surface;
+        Cairo::RefPtr<Cairo::Context> cr;
+        int width = ceil (snippet.get_width ());
+        int height = ceil (snippet.get_height ());
+
+        surface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32, width , height);
+        cr = Cairo::Context::create (surface);
+        snippet.render (cr, 1);
+        surface->write_to_png (Glib::build_filename (snippet.get_data_dir (), PNG_FILENAME));
     }
 };
 
@@ -282,8 +324,9 @@ void
 PixassoSnippet::setup_exporters ()
 {
     exporter_plain_text = new SnippetExporterPlainText (*this);
-    exporter_pdf_uri = new SnippetExporterPdfUri (*this);
     exporter_eps_uri = new SnippetExporterEpsUri (*this);
+    exporter_pdf_uri = new SnippetExporterPdfUri (*this);
+    exporter_png_uri = new SnippetExporterPngUri (*this);
 }
 
 PixassoSnippet::~PixassoSnippet ()
@@ -291,6 +334,7 @@ PixassoSnippet::~PixassoSnippet ()
     delete exporter_plain_text;
     delete exporter_eps_uri;
     delete exporter_pdf_uri;
+    delete exporter_png_uri;
 
     if (priv->remove_data_on_delete) {
         g_debug ("PixassoSnippet: deleting %s", priv->data_dir.c_str ());
@@ -310,6 +354,8 @@ PixassoSnippet::get_exporter (PixassoSnippet::ExportFormat format)
         return exporter_eps_uri;
     case EXPORT_PDF_URI:
         return exporter_pdf_uri;
+    case EXPORT_PNG_URI:
+        return exporter_png_uri;
     default:
         return NULL;
     }
