@@ -38,6 +38,7 @@ public:
 private:
     Gtk::TextView *textView;
     Gtk::Entry *fontEntry;
+    Gtk::ColorButton *colorButton;
     PixassoMathModeCombo *mathModeCombo;
 };
 

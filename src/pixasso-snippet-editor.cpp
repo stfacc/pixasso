@@ -30,7 +30,7 @@
 #include <iostream>
 
 #define DEFAULT_FONT_SIZE "14pt"
-
+#define DEFAULT_COLOR "Black"
 
 PixassoSnippetEditor::PixassoSnippetEditor ()
 {
@@ -47,6 +47,7 @@ PixassoSnippetEditor::PixassoSnippetEditor ()
 
     refBuilder->get_widget ("latex-textview", textView);
     refBuilder->get_widget ("font-entry", fontEntry);
+    refBuilder->get_widget ("color-button", colorButton);
 
     refBuilder->get_widget ("scrolledwindow", widget);
     widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_BOTTOM);
@@ -75,6 +76,7 @@ PixassoSnippetEditor::set_default ()
 {
     textView->get_buffer ()->set_text ("");
     fontEntry->set_text (DEFAULT_FONT_SIZE);
+    colorButton->set_rgba (Gdk::RGBA (DEFAULT_COLOR));
     mathModeCombo->set_default ();
 }
 
@@ -83,6 +85,7 @@ PixassoSnippetEditor::create_snippet ()
 {
     return Glib::RefPtr<PixassoSnippet> (new PixassoSnippet ("default",
                                                              fontEntry->get_text (),
+                                                             colorButton->get_rgba (),
                                                              mathModeCombo->get_active_math_mode (),
                                                              textView->get_buffer ()->get_text () ));
 }
@@ -91,6 +94,7 @@ void
 PixassoSnippetEditor::fill_with_snippet (Glib::RefPtr<PixassoSnippet> &snippet)
 {
     fontEntry->set_text (snippet->get_font_size ());
+    colorButton->set_rgba (snippet->get_color ());
     mathModeCombo->get_active_id (snippet->get_math_mode ());
     textView->get_buffer ()->set_text (snippet->get_latex_body ());
 }
