@@ -127,6 +127,13 @@ void
 Preview::set_snippet (Glib::RefPtr<Snippet> &snippet)
 {
     (*this).snippet = snippet;
+
+    button_zoom_out->set_sensitive (true);
+    button_zoom_in->set_sensitive (true);
+    button_zoom_100->set_sensitive (true);
+    button_zoom_fit->set_sensitive (true);
+    zoom_label.set_sensitive (true);
+
     area->drag_source_set (dnd_targets);
     area->queue_resize ();
 }
@@ -168,7 +175,14 @@ void
 Preview::clear ()
 {
     snippet.reset ();
+
     set_zoom_100 ();
+    button_zoom_out->set_sensitive (false);
+    button_zoom_in->set_sensitive (false);
+    button_zoom_100->set_sensitive (false);
+    button_zoom_fit->set_sensitive (false);
+    zoom_label.set_sensitive (false);
+
     area->drag_source_unset ();
     area->queue_draw ();
 }
@@ -181,7 +195,10 @@ Preview::set_zoom (double zoom)
 {
     double real_zoom = CLAMP (zoom, ZOOM_MIN, ZOOM_MAX);
     property_zoom () = real_zoom;
-    g_debug ("ZOOM: %f", real_zoom);
+
+    button_zoom_out->set_sensitive (real_zoom > ZOOM_MIN);
+    button_zoom_in->set_sensitive (real_zoom < ZOOM_MAX);
+
     area->queue_resize ();
 }
 
@@ -212,7 +229,7 @@ Preview::on_event_cb (GdkEvent *e)
 {
     GdkEventScroll *event;
 
-    if (e->type != GDK_SCROLL)
+    if (e->type != GDK_SCROLL || !snippet)
         return false;
 
     event = (GdkEventScroll *) e;
