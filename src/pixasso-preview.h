@@ -65,6 +65,10 @@ private:
     Area *area;
 
     Gtk::ScrolledWindow scrolled;
+    Gtk::Button *button_zoom_out;
+    Gtk::Button *button_zoom_in;
+    Gtk::Button *button_zoom_100;
+    Gtk::Button *button_zoom_fit;
 
     std::vector<Gtk::TargetEntry> dnd_targets;
     Glib::RefPtr<Snippet> snippet;

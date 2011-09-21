@@ -19,12 +19,15 @@
  *
  */
 
+#include <config.h>
+
 #include "pixasso-preview.h"
 
 #include "pixasso-snippet.h"
 
 #include <cairomm/context.h>
 #include <iomanip>
+#include <iostream>
 
 
 using namespace Pixasso;
@@ -54,6 +57,17 @@ Preview::setup_preview ()
 {
     dnd_targets.push_back (Gtk::TargetEntry ("text/uri-list"));
 
+    Glib::RefPtr<Gtk::Builder> refBuilder;
+
+    try {
+        refBuilder = Gtk::Builder::create_from_file (Glib::build_filename (DATADIR, PACKAGE,
+                                                                           "pixasso-preview.ui"));
+    } catch (Glib::FileError &e) {
+        std::cerr << e.what () << std::endl;
+        exit (EXIT_FAILURE);
+    }
+
+
     area->signal_drag_begin ()
         .connect (sigc::mem_fun (*this, &Preview::on_area_drag_begin));
     area->signal_drag_data_get ()
@@ -64,7 +78,6 @@ Preview::setup_preview ()
         .connect (sigc::mem_fun (*this, &Preview::on_event_cb));
     property_zoom ().signal_changed ()
         .connect (sigc::mem_fun (*this, &Preview::on_zoom_cb));
-    set_zoom_100 ();
 
     scrolled.set_vexpand (true);
     scrolled.set_hexpand (true);
@@ -74,20 +87,24 @@ Preview::setup_preview ()
 
     attach (scrolled, 0, 0, 1, 1);
 
-    Gtk::Toolbar *toolbar = new Gtk::Toolbar ();
-    toolbar->get_style_context ()->add_class ("inline-toolbar");
+    Gtk::Toolbar *toolbar;
+    refBuilder->get_widget ("toolbar", toolbar);
     toolbar->get_style_context ()->set_junction_sides (Gtk::JUNCTION_TOP);
-    Gtk::ToolButton *tb;
-    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_OUT));
-    toolbar->append (*tb, sigc::bind<double>
-                     (sigc::mem_fun (*this, &Preview::set_zoom_step), 1 / ZOOM_STEP));
-    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_IN));
-    toolbar->append (*tb, sigc::bind<double>
-                     (sigc::mem_fun (*this, &Preview::set_zoom_step), ZOOM_STEP));
-    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_100));
-    toolbar->append (*tb, sigc::mem_fun (*this, &Preview::set_zoom_100));
-    tb = new Gtk::ToolButton (Gtk::StockID (Gtk::Stock::ZOOM_FIT));
-    toolbar->append (*tb, sigc::mem_fun (*this, &Preview::set_zoom_fit));
+
+    refBuilder->get_widget ("button-zoom-out", button_zoom_out);
+    button_zoom_out->signal_clicked ()
+        .connect (sigc::bind<double>
+                  (sigc::mem_fun (*this, &Preview::set_zoom_step), 1 / ZOOM_STEP));
+    refBuilder->get_widget ("button-zoom-in", button_zoom_in);
+    button_zoom_in->signal_clicked ()
+        .connect (sigc::bind<double>
+                  (sigc::mem_fun (*this, &Preview::set_zoom_step), ZOOM_STEP));
+    refBuilder->get_widget ("button-zoom-100", button_zoom_100);
+    button_zoom_100->signal_clicked ()
+        .connect (sigc::mem_fun (*this, &Preview::set_zoom_100));
+    refBuilder->get_widget ("button-zoom-fit", button_zoom_fit);
+    button_zoom_fit->signal_clicked ()
+        .connect (sigc::mem_fun (*this, &Preview::set_zoom_fit));
 
     Gtk::ToolItem *ti = new Gtk::ToolItem ();
     ti->add (zoom_label);
@@ -97,6 +114,8 @@ Preview::setup_preview ()
     toolbar->show_all ();
 
     attach (*toolbar, 0, 1, 1, 1);
+
+    set_zoom_100 ();
 }
 
 Preview::~Preview ()
