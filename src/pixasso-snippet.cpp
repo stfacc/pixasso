@@ -35,8 +35,6 @@
 #include <poppler.h>
 
 
-#define PDF_FILENAME "a.pdf"
-
 #define LATEX_BODY_FILENAME "b.tex"
 
 #define KEYFILE_FILENAME "snippet.ini"
@@ -48,111 +46,6 @@
 #define KEYFILE_MATH_MODE "math-mode"
 
 using namespace Pixasso;
-
-/********************************************************************/
-/*                                                                  */
-/*  Snippet Exporters                                               */
-/*                                                                  */
-/********************************************************************/
-
-/*
- * To add a new exporter Foo:
- *  - implement a class SnippetExporterFoo
- *  - add EXPORT_FOO to SnippetExporterFactory::ExportFormat enum
- *  - add a case EXPORT_FOO to SnippetExporterFactory::create
- */
-
-/***********************/
-/* Plain Text exporter */
-/***********************/
-
-gchar *
-SnippetExporterPlainText::get_data ()
-{
-    return g_strdup (snippet->get_latex_full ().c_str ());
-}
-
-/***********************/
-/* Eps Uri exporter    */
-/***********************/
-
-#define EPS_FILENAME "a.eps"
-gchar *
-SnippetExporterEpsUri::get_data ()
-{
-    if (!snippet) {
-        g_warning ("SnippetExporter::get_data(): no snippet set");
-        return NULL;
-    }
-
-    if (!Glib::file_test (Glib::build_filename (snippet->get_data_dir (), EPS_FILENAME), Glib::FILE_TEST_EXISTS))
-        generate ();
-
-    Glib::ustring uri;
-    uri = Glib::filename_to_uri (Glib::build_filename (snippet->get_data_dir (), EPS_FILENAME));
-    return g_strdup (uri.c_str ());
-}
-
-void
-SnippetExporterEpsUri::generate ()
-{
-    Glib::ustring cmdline =
-        "pdftops -eps " +
-        Glib::build_filename (snippet->get_data_dir (), PDF_FILENAME) + " " +
-        Glib::build_filename (snippet->get_data_dir (), EPS_FILENAME);
-    Glib::spawn_command_line_sync (cmdline);
-}
-
-
-/***********************/
-/* Pdf Uri exporter    */
-/***********************/
-
-gchar *
-SnippetExporterPdfUri::get_data ()
-{
-    Glib::ustring uri;
-    uri = Glib::filename_to_uri (Glib::build_filename (snippet->get_data_dir (), PDF_FILENAME));
-    return g_strdup (uri.c_str ());
-}
-
-
-/***********************/
-/* Png Uri exporter    */
-/***********************/
-
-#define PNG_FILENAME "a.png"
-gchar *
-SnippetExporterPngUri::get_data ()
-{
-    if (!Glib::file_test (Glib::build_filename (snippet->get_data_dir (), PNG_FILENAME), Glib::FILE_TEST_EXISTS))
-        generate ();
-
-    Glib::ustring uri;
-    uri = Glib::filename_to_uri (Glib::build_filename (snippet->get_data_dir (), PNG_FILENAME));
-    return g_strdup (uri.c_str ());
-}
-
-void
-SnippetExporterPngUri::generate ()
-{
-    Cairo::RefPtr<Cairo::Surface> surface;
-    Cairo::RefPtr<Cairo::Context> cr;
-    int width = ceil (snippet->get_width ());
-    int height = ceil (snippet->get_height ());
-
-    surface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32, width , height);
-    cr = Cairo::Context::create (surface);
-    snippet->render (cr, 1);
-    surface->write_to_png (Glib::build_filename (snippet->get_data_dir (), PNG_FILENAME));
-}
-
-/********************************************************************/
-/*                                                                  */
-/*  Snippet                                                         */
-/*                                                                  */
-/********************************************************************/
-
 
 static Snippet::MathModeMap
 create_math_mode_map ()

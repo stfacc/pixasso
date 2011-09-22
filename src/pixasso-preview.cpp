@@ -24,6 +24,7 @@
 #include "pixasso-preview.h"
 
 #include "pixasso-snippet.h"
+#include "pixasso-snippet-exporter.h"
 
 #include <cairomm/context.h>
 #include <iomanip>
