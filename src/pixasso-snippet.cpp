@@ -23,6 +23,7 @@
 
 #include "pixasso-snippet.h"
 
+#include "pixasso-snippet-private.h"
 #include "pixasso-utils.h"
 
 #include <cairomm/context.h>
@@ -36,7 +37,6 @@
 
 #define PDF_FILENAME "a.pdf"
 
-#define LATEX_FILENAME "a.tex"
 #define LATEX_BODY_FILENAME "b.tex"
 
 #define KEYFILE_FILENAME "snippet.ini"
@@ -153,28 +153,6 @@ SnippetExporterPngUri::generate ()
 /*                                                                  */
 /********************************************************************/
 
-class Snippet::Private {
-public:
-    Glib::ustring data_dir;
-    time_t creation_time;
-
-    Glib::ustring preamble_name;
-    Glib::ustring font_size;
-    Gdk::RGBA color;
-    Glib::ustring latex_body;
-    Glib::ustring math_mode;
-    Glib::ustring latex_full;
-
-    double cached_zoom_factor;
-    PopplerPage *poppler_page;
-    Cairo::RefPtr<Cairo::Surface> cached_surface;
-
-    bool generated;
-    void generate ();
-    void generate_latex_full ();
-
-    bool remove_data_on_delete;
-};
 
 static Snippet::MathModeMap
 create_math_mode_map ()
@@ -195,16 +173,13 @@ create_math_mode_map ()
 Snippet::MathModeMap
 Snippet::math_mode_map = create_math_mode_map ();
 
-static PopplerPage *poppler_page_get_first_from_file (Glib::ustring path);
-
-
 // Create a Snippet from various latex data
 Snippet::Snippet (Glib::ustring preamble_name,
                                 Glib::ustring font_size,
                                 Gdk::RGBA color,
                                 Glib::ustring math_mode,
                                 Glib::ustring latex_body)
-    : priv (new Private ())
+    : priv (new SnippetPrivate ())
 {
     gchar *data_dir_cstr;
     Glib::ustring filename;
@@ -252,7 +227,7 @@ Snippet::Snippet (Glib::ustring preamble_name,
 
 // Create a Snippet from a directory name
 Snippet::Snippet (Glib::ustring dir_name)
-    : priv (new Private ())
+    : priv (new SnippetPrivate ())
 {
     Glib::ustring filename;
     Glib::KeyFile keyfile;
@@ -275,7 +250,7 @@ Snippet::Snippet (Glib::ustring dir_name)
     priv->generate_latex_full ();
 
     filename = Glib::build_filename (priv->data_dir, PDF_FILENAME);
-    priv->poppler_page = poppler_page_get_first_from_file (filename);
+    priv->poppler_page = priv->poppler_page_get_first_from_file (filename);
 
     // FIXME: do we always expect to find a PDF cached file?
     if (priv->poppler_page)
@@ -401,81 +376,3 @@ Snippet::is_generated ()
     return priv->generated;
 }
 
-void
-Snippet::Private::generate_latex_full ()
-{
-    if (preamble_name != "default")
-        throw;
-
-    Glib::ustring color_str = Glib::ustring::compose ("%1,%2,%3",
-                                                      color.get_red (),
-                                                      color.get_green (),
-                                                      color.get_blue ());
-
-    latex_full =
-        "\\documentclass{article}"
-        "\\pagestyle{empty}"
-        "\\usepackage{amsmath,amssymb,amsfonts}"
-        "\\usepackage{fix-cm}"
-        "\\usepackage{color}"
-        "\\definecolor{pixasso-color}{rgb}{" + color_str + "}"
-        "\\begin{document} "
-        "\\fontsize{" + font_size + "}{" + font_size + "}\\selectfont" +
-        "\\color{pixasso-color}" +
-        math_mode_map[math_mode].prefix +
-        latex_body +
-        math_mode_map[math_mode].suffix +
-        "\\end{document}";
-}
-
-void
-Snippet::Private::generate ()
-{
-    Glib::ustring source_path;
-    Glib::RefPtr<Gio::File> source_file;
-
-    if (generated)
-        return;
-
-    generate_latex_full ();
-
-    Glib::file_set_contents (LATEX_FILENAME, latex_full);
-
-    g_spawn_command_line_sync ("pdflatex -halt-on-error '\\input " LATEX_FILENAME "'", NULL, NULL, NULL, NULL);
-    g_spawn_command_line_sync ("pdfcrop " PDF_FILENAME " " PDF_FILENAME, NULL, NULL, NULL, NULL);
-
-    source_path = Glib::build_filename (Glib::get_current_dir (), PDF_FILENAME);
-
-    poppler_page = poppler_page_get_first_from_file (source_path);
-
-    if (!poppler_page)
-        throw std::runtime_error ("Snippet: poppler_page is NULL");
-
-    source_file = Gio::File::create_for_path (source_path);
-    source_file->move (Gio::File::create_for_path (Glib::build_filename (data_dir, PDF_FILENAME)),
-                       Gio::FILE_COPY_NONE);
-
-    generated = true;
-}
-
-static PopplerPage *
-poppler_page_get_first_from_file (Glib::ustring path)
-{
-    PopplerDocument *doc;
-    PopplerPage *page;
-    GError *error = NULL;
-    Glib::ustring fileuri = Glib::filename_to_uri (path);
-
-    doc = poppler_document_new_from_file (fileuri.c_str (), NULL, &error);
-
-    if (error) {
-        g_critical ("Snippet: error in poppler_page_get_first_from file: %s\n", error->message);
-        g_error_free (error);
-        return NULL;
-    }
-
-    page = poppler_document_get_page (doc, 0);
-    g_object_unref (doc);
-
-    return page;
-}

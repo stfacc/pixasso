@@ -36,8 +36,7 @@
 namespace Pixasso
 {
 
-class SnippetExporter;
-
+class SnippetPrivate;
 class Snippet : public Glib::Object
 {
 public:
@@ -78,8 +77,7 @@ public:
     void render (Cairo::RefPtr<Cairo::Context>, double);
 
 private:
-    class Private;
-    Private *priv;
+    SnippetPrivate *priv;
 };
 
 class SnippetExporter

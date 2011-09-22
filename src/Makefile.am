@@ -21,6 +21,8 @@ pixasso_SOURCES = \
 	pixasso-snippet.h		\
 	pixasso-snippet-editor.cpp	\
 	pixasso-snippet-editor.h	\
+	pixasso-snippet-private.cpp	\
+	pixasso-snippet-private.h	\
 	pixasso-utils.cpp		\
 	pixasso-utils.h
 
