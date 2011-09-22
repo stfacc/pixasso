@@ -80,7 +80,7 @@ SnippetPrivate::generate ()
         throw std::runtime_error ("Snippet: poppler_page is NULL");
 
     source_file = Gio::File::create_for_path (source_path);
-    source_file->move (Gio::File::create_for_path (Glib::build_filename (data_dir, PDF_FILENAME)),
+    source_file->move (Gio::File::create_for_path (get_pdf_path ()),
                        Gio::FILE_COPY_NONE);
 
     generated = true;
@@ -106,4 +106,10 @@ SnippetPrivate::poppler_page_get_first_from_file (Glib::ustring path)
     g_object_unref (doc);
 
     return page;
+}
+
+Glib::ustring
+SnippetPrivate::get_pdf_path ()
+{
+    return Glib::build_filename (data_dir, PDF_FILENAME);
 }

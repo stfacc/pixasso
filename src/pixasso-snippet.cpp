@@ -249,7 +249,7 @@ Snippet::Snippet (Glib::ustring dir_name)
     priv->math_mode = keyfile.get_string (KEYFILE_GROUP, KEYFILE_MATH_MODE);
     priv->generate_latex_full ();
 
-    filename = Glib::build_filename (priv->data_dir, PDF_FILENAME);
+    filename = priv->get_pdf_path ();
     priv->poppler_page = priv->poppler_page_get_first_from_file (filename);
 
     // FIXME: do we always expect to find a PDF cached file?

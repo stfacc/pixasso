@@ -51,6 +51,8 @@ namespace Pixasso
         void generate_latex_full ();
         PopplerPage *poppler_page_get_first_from_file (Glib::ustring);
 
+        Glib::ustring get_pdf_path ();
+
         bool remove_data_on_delete;
     };
 
