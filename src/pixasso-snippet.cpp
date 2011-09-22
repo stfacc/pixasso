@@ -58,140 +58,94 @@ using namespace Pixasso;
 /*
  * To add a new exporter Foo:
  *  - implement a class SnippetExporterFoo
- *  - add a memeber Snippet::exporter_foo of type SnippetExporterFoo
- *  - add EXPORT_FOO to Snippet::ExportFormat enum
- *  - add a case EXPORT_FOO to Snippet::get_exporter
- *  - add export_foo = new (SnippetExportFoo (*this)) to Snippet::setup_exporters
- *  - add delete export_foo to Snippet::~Snippet
+ *  - add EXPORT_FOO to SnippetExporterFactory::ExportFormat enum
+ *  - add a case EXPORT_FOO to SnippetExporterFactory::create
  */
 
-namespace Pixasso
+/***********************/
+/* Plain Text exporter */
+/***********************/
+
+gchar *
+SnippetExporterPlainText::get_data ()
 {
+    return g_strdup (snippet->get_latex_full ().c_str ());
+}
 
-class SnippetExporterPlainText : public SnippetExporter
-{
-public:
-    SnippetExporterPlainText (Snippet &snippet) : SnippetExporter (snippet)
-    {}
+/***********************/
+/* Eps Uri exporter    */
+/***********************/
 
-    virtual Glib::ustring get_mime_type () const
-    { return "text/plain"; }
-
-    virtual bool is_generated ()
-    { return snippet.is_generated (); }
-
-    virtual gchar *get_data ()
-    {
-        if (!is_generated ())
-            return NULL;  // This should not happen
-
-        return g_strdup (snippet.get_latex_full ().c_str ());
-    }
-};
-
-class SnippetExporterEpsUri : public SnippetExporter
-{
 #define EPS_FILENAME "a.eps"
-public:
-    SnippetExporterEpsUri (Snippet &snippet) : SnippetExporter (snippet)
-    {
-        generated = Glib::file_test (Glib::build_filename (snippet.get_data_dir (), EPS_FILENAME),
-                                     Glib::FILE_TEST_EXISTS);
-    }
-
-    virtual Glib::ustring get_mime_type () const
-    { return "text/uri-list"; }
-
-    virtual bool is_generated ()
-    { return generated; }
-
-    virtual gchar *get_data ()
-    {
-        if (!is_generated ())
-            generate ();
-
-        Glib::ustring uri;
-        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), EPS_FILENAME));
-        return g_strdup (uri.c_str ());
-    }
-private:
-    bool generated;
-    void generate ()
-    {
-        Glib::ustring cmdline =
-            "pdftops -eps " +
-            Glib::build_filename (snippet.get_data_dir (), PDF_FILENAME) + " " +
-            Glib::build_filename (snippet.get_data_dir (), EPS_FILENAME);
-        Glib::spawn_command_line_sync (cmdline);
-    }
-};
-
-class SnippetExporterPdfUri : public SnippetExporter
+gchar *
+SnippetExporterEpsUri::get_data ()
 {
-public:
-    SnippetExporterPdfUri (Snippet &snippet) : SnippetExporter (snippet)
-    {}
-
-    virtual Glib::ustring get_mime_type () const
-    { return "text/uri-list"; }
-
-    virtual bool is_generated ()
-    { return snippet.is_generated (); }
-
-    virtual gchar *get_data ()
-    {
-        if (!is_generated ())
-            return NULL;  // This should not happen
-
-        Glib::ustring uri;
-        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), PDF_FILENAME));
-        return g_strdup (uri.c_str ());
+    if (!snippet) {
+        g_warning ("SnippetExporter::get_data(): no snippet set");
+        return NULL;
     }
-};
 
+    if (!Glib::file_test (Glib::build_filename (snippet->get_data_dir (), EPS_FILENAME), Glib::FILE_TEST_EXISTS))
+        generate ();
 
-class SnippetExporterPngUri : public SnippetExporter
+    Glib::ustring uri;
+    uri = Glib::filename_to_uri (Glib::build_filename (snippet->get_data_dir (), EPS_FILENAME));
+    return g_strdup (uri.c_str ());
+}
+
+void
+SnippetExporterEpsUri::generate ()
 {
+    Glib::ustring cmdline =
+        "pdftops -eps " +
+        Glib::build_filename (snippet->get_data_dir (), PDF_FILENAME) + " " +
+        Glib::build_filename (snippet->get_data_dir (), EPS_FILENAME);
+    Glib::spawn_command_line_sync (cmdline);
+}
+
+
+/***********************/
+/* Pdf Uri exporter    */
+/***********************/
+
+gchar *
+SnippetExporterPdfUri::get_data ()
+{
+    Glib::ustring uri;
+    uri = Glib::filename_to_uri (Glib::build_filename (snippet->get_data_dir (), PDF_FILENAME));
+    return g_strdup (uri.c_str ());
+}
+
+
+/***********************/
+/* Png Uri exporter    */
+/***********************/
+
 #define PNG_FILENAME "a.png"
-public:
-    SnippetExporterPngUri (Snippet &snippet) : SnippetExporter (snippet)
-    {
-        generated = Glib::file_test (Glib::build_filename (snippet.get_data_dir (), PNG_FILENAME),
-                                     Glib::FILE_TEST_EXISTS);
-    }
+gchar *
+SnippetExporterPngUri::get_data ()
+{
+    if (!Glib::file_test (Glib::build_filename (snippet->get_data_dir (), PNG_FILENAME), Glib::FILE_TEST_EXISTS))
+        generate ();
 
-    virtual Glib::ustring get_mime_type () const
-    { return "text/uri-list"; }
+    Glib::ustring uri;
+    uri = Glib::filename_to_uri (Glib::build_filename (snippet->get_data_dir (), PNG_FILENAME));
+    return g_strdup (uri.c_str ());
+}
 
-    virtual bool is_generated ()
-    { return generated; }
+void
+SnippetExporterPngUri::generate ()
+{
+    Cairo::RefPtr<Cairo::Surface> surface;
+    Cairo::RefPtr<Cairo::Context> cr;
+    int width = ceil (snippet->get_width ());
+    int height = ceil (snippet->get_height ());
 
-    virtual gchar *get_data ()
-    {
-        if (!is_generated ())
-            generate ();
-
-        Glib::ustring uri;
-        uri = Glib::filename_to_uri (Glib::build_filename (snippet.get_data_dir (), PNG_FILENAME));
-        return g_strdup (uri.c_str ());
-    }
-private:
-    bool generated;
-    void generate ()
-    {
-        Cairo::RefPtr<Cairo::Surface> surface;
-        Cairo::RefPtr<Cairo::Context> cr;
-        int width = ceil (snippet.get_width ());
-        int height = ceil (snippet.get_height ());
-
-        surface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32, width , height);
-        cr = Cairo::Context::create (surface);
-        snippet.render (cr, 1);
-        surface->write_to_png (Glib::build_filename (snippet.get_data_dir (), PNG_FILENAME));
-    }
-};
-
-} /* end of namespace Pixasso */
+    surface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32, width , height);
+    cr = Cairo::Context::create (surface);
+    snippet->render (cr, 1);
+    surface->write_to_png (Glib::build_filename (snippet->get_data_dir (), PNG_FILENAME));
+}
 
 /********************************************************************/
 /*                                                                  */
@@ -294,8 +248,6 @@ Snippet::Snippet (Glib::ustring preamble_name,
     priv->cached_zoom_factor = -1;
 
     priv->generate ();
-
-    setup_exporters ();
 }
 
 // Create a Snippet from a directory name
@@ -330,49 +282,16 @@ Snippet::Snippet (Glib::ustring dir_name)
         priv->generated = true;
     else
         throw std::runtime_error ("Snippet: poppler_page is NULL");
-
-    setup_exporters ();
-}
-
-void
-Snippet::setup_exporters ()
-{
-    exporter_plain_text = new SnippetExporterPlainText (*this);
-    exporter_eps_uri = new SnippetExporterEpsUri (*this);
-    exporter_pdf_uri = new SnippetExporterPdfUri (*this);
-    exporter_png_uri = new SnippetExporterPngUri (*this);
 }
 
 Snippet::~Snippet ()
 {
-    delete exporter_plain_text;
-    delete exporter_eps_uri;
-    delete exporter_pdf_uri;
-    delete exporter_png_uri;
-
     if (priv->remove_data_on_delete) {
         g_debug ("Snippet: deleting %s", priv->data_dir.c_str ());
         ::remove_dir (priv->data_dir);
     }
 
     delete priv;
-}
-
-SnippetExporter *
-Snippet::get_exporter (Snippet::ExportFormat format)
-{
-    switch (format) {
-    case EXPORT_PLAIN_TEXT:
-        return exporter_plain_text;
-    case EXPORT_EPS_URI:
-        return exporter_eps_uri;
-    case EXPORT_PDF_URI:
-        return exporter_pdf_uri;
-    case EXPORT_PNG_URI:
-        return exporter_png_uri;
-    default:
-        return NULL;
-    }
 }
 
 void

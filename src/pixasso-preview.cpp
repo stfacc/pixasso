@@ -67,7 +67,6 @@ Preview::setup_preview ()
         exit (EXIT_FAILURE);
     }
 
-
     area->signal_drag_begin ()
         .connect (sigc::mem_fun (*this, &Preview::on_area_drag_begin));
     area->signal_drag_data_get ()
@@ -158,10 +157,11 @@ Preview::on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& /* context
                                 guint /* info */,
                                 guint /* time */)
 {
-    gchar *data;
-    SnippetExporter *exporter = snippet->get_exporter (Snippet::EXPORT_EPS_URI);
+    SnippetExporter *exporter = SnippetExporterFactory::create (SnippetExporterFactory::EXPORT_EPS_URI,
+                                                                snippet);
+    gchar *data = exporter->get_data ();
 
-    if (!(data = exporter->get_data ()))
+    if (!data)
         return;
 
     selection_data.set (exporter->get_mime_type (),
@@ -169,6 +169,7 @@ Preview::on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& /* context
                         (const guchar*) data,
                         strlen (data));
     g_free (data);
+    delete exporter;
 }
 
 void

@@ -37,46 +37,25 @@ namespace Pixasso
 {
 
 class SnippetExporter;
-class SnippetExporterPlainText;
-class SnippetExporterEpsUri;
-class SnippetExporterPdfUri;
-class SnippetExporterPngUri;
 
 class Snippet : public Glib::Object
 {
 public:
-    typedef enum {
-        // Plain text is always the first
-        EXPORT_PLAIN_TEXT,
-
-        // Keep the following in alphabetical order
-        EXPORT_EPS_URI,
-        EXPORT_PDF_URI,
-        EXPORT_PNG_URI,
-
-        N_EXPORT
-    } ExportFormat;
-
     typedef struct {
         Glib::ustring prefix;
         Glib::ustring suffix;
         Glib::ustring display_id;
     } MathMode;
 
-    SnippetExporterPlainText *exporter_plain_text;
-    SnippetExporterEpsUri *exporter_eps_uri;
-    SnippetExporterPdfUri *exporter_pdf_uri;
-    SnippetExporterPngUri *exporter_png_uri;
-
     typedef std::map<Glib::ustring, MathMode> MathModeMap;
 
     static MathModeMap math_mode_map;
 
     Snippet (Glib::ustring  /* preamble name */,
-                    Glib::ustring  /* font size */,
-                    Gdk::RGBA      /* color */,
-                    Glib::ustring  /* math mode */,
-                    Glib::ustring  /* latex body */);
+             Glib::ustring  /* font size */,
+             Gdk::RGBA      /* color */,
+             Glib::ustring  /* math mode */,
+             Glib::ustring  /* latex body */);
 
     Snippet (Glib::ustring);
     ~Snippet ();
@@ -91,8 +70,6 @@ public:
     Glib::ustring get_latex_body ();
     Glib::ustring get_latex_full ();
 
-    SnippetExporter *get_exporter (ExportFormat);
-
     void set_remove_data_on_delete (bool);
 
     double get_width ();
@@ -101,8 +78,6 @@ public:
     void render (Cairo::RefPtr<Cairo::Context>, double);
 
 private:
-    void setup_exporters ();
-
     class Private;
     Private *priv;
 };
@@ -110,18 +85,133 @@ private:
 class SnippetExporter
 {
 public:
-    SnippetExporter (Snippet &x) : snippet (x)
+    SnippetExporter () : snippet (NULL)
     {}
+
+    SnippetExporter (Glib::RefPtr<Snippet> x) : snippet (x)
+    {}
+
+    void set_snippet (Glib::RefPtr<Snippet> x)
+    { snippet = x; }
+
     virtual Glib::ustring get_mime_type () const
     {};
+
     virtual gchar *get_data ()
-    {};
-    virtual bool is_generated ()
     {};
 
 protected:
-    Snippet &snippet;
+    Glib::RefPtr<Snippet> snippet;
 };
+
+class SnippetExporterPlainText : public SnippetExporter
+{
+public:
+    SnippetExporterPlainText () : SnippetExporter ()
+    {}
+
+    SnippetExporterPlainText (Glib::RefPtr<Snippet> snippet) : SnippetExporter (snippet)
+    {}
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/plain"; }
+
+    virtual gchar *get_data ();
+};
+
+class SnippetExporterEpsUri : public SnippetExporter
+{
+public:
+    SnippetExporterEpsUri () : SnippetExporter ()
+    {}
+
+    SnippetExporterEpsUri (Glib::RefPtr<Snippet> snippet) : SnippetExporter (snippet)
+    {}
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/uri-list"; }
+
+    virtual gchar *get_data ();
+
+private:
+    void generate ();
+};
+
+class SnippetExporterPdfUri : public SnippetExporter
+{
+public:
+    SnippetExporterPdfUri () : SnippetExporter ()
+    {}
+
+    SnippetExporterPdfUri (Glib::RefPtr<Snippet> snippet) : SnippetExporter (snippet)
+    {}
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/uri-list"; }
+
+    virtual gchar *get_data ();
+};
+
+class SnippetExporterPngUri : public SnippetExporter
+{
+public:
+    SnippetExporterPngUri () : SnippetExporter ()
+    {}
+
+    SnippetExporterPngUri (Glib::RefPtr<Snippet> snippet) : SnippetExporter (snippet)
+    {}
+
+    virtual Glib::ustring get_mime_type () const
+    { return "text/uri-list"; }
+
+    virtual gchar *get_data ();
+
+private:
+    void generate ();
+};
+
+class SnippetExporterFactory
+{
+public:
+    enum ExportFormat {
+        // Plain text is always the first
+        EXPORT_PLAIN_TEXT,
+
+        // Keep the following in alphabetical order
+        EXPORT_EPS_URI,
+        EXPORT_PDF_URI,
+        EXPORT_PNG_URI,
+
+        N_EXPORT
+    };
+
+    static SnippetExporter *create (ExportFormat format)
+    {
+        switch (format) {
+        case EXPORT_PLAIN_TEXT:
+            return new SnippetExporterPlainText ();
+        case EXPORT_EPS_URI:
+            return new SnippetExporterEpsUri ();
+        case EXPORT_PDF_URI:
+            return new SnippetExporterPdfUri ();
+        case EXPORT_PNG_URI:
+            return new SnippetExporterPngUri ();
+        default:
+            return NULL;
+        }
+    }
+
+    static SnippetExporter *create (ExportFormat format,
+                                    Glib::RefPtr<Snippet> snippet)
+    {
+        SnippetExporter *exporter;
+
+        exporter = create (format);
+        exporter->set_snippet (snippet);
+        return exporter;
+    }
+};
+
 
 } /* end namespace Pixasso */
 
