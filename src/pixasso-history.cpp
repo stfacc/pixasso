@@ -55,7 +55,7 @@ History::prepend_snippet (Glib::RefPtr<Snippet> &snippet)
 
     Gtk::TreeModel::Row row = *(prepend ());
     row[m_Columns.m_Snippet] = snippet;
-    row[m_Columns.m_LatexBody] = snippet->get_latex_body ();
+    row[m_Columns.m_LatexBody] = Glib::Markup::escape_text (snippet->get_latex_body ());
 }
 
 void
