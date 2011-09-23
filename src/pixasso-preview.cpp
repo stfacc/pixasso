@@ -87,10 +87,6 @@ Preview::setup_preview ()
 
     attach (scrolled, 0, 0, 1, 1);
 
-    Gtk::Toolbar *toolbar;
-    refBuilder->get_widget ("toolbar", toolbar);
-    toolbar->get_style_context ()->set_junction_sides (Gtk::JUNCTION_TOP);
-
     refBuilder->get_widget ("button-zoom-out", button_zoom_out);
     button_zoom_out->signal_clicked ()
         .connect (sigc::bind<double>
@@ -106,13 +102,22 @@ Preview::setup_preview ()
     button_zoom_fit->signal_clicked ()
         .connect (sigc::mem_fun (*this, &Preview::set_zoom_fit));
 
-    Gtk::ToolItem *ti = new Gtk::ToolItem ();
-    ti->add (zoom_label);
-    ti->set_margin_left (6);
-    toolbar->append (*ti);
+    refBuilder->get_widget ("zoom-label", zoom_label);
 
+    refBuilder->get_widget ("export-format-combo", export_format_combo);
+
+    // FIXME: this workarounds GTK+ bug 650369
+    export_format_combo->set_entry_text_column (0);
+
+    export_format_combo->append (SnippetExporterEpsUri::get_id ());
+    export_format_combo->append (SnippetExporterPdfUri::get_id ());
+    export_format_combo->append (SnippetExporterPngUri::get_id ());
+    export_format_combo->set_active_text (SnippetExporterEpsUri::get_id ());
+
+    Gtk::Toolbar *toolbar;
+    refBuilder->get_widget ("toolbar", toolbar);
+    toolbar->get_style_context ()->set_junction_sides (Gtk::JUNCTION_TOP);
     toolbar->show_all ();
-
     attach (*toolbar, 0, 1, 1, 1);
 
     set_zoom_100 ();
@@ -132,7 +137,8 @@ Preview::set_snippet (Glib::RefPtr<Snippet> &snippet)
     button_zoom_in->set_sensitive (true);
     button_zoom_100->set_sensitive (true);
     button_zoom_fit->set_sensitive (true);
-    zoom_label.set_sensitive (true);
+    zoom_label->set_sensitive (true);
+    export_format_combo->set_sensitive (true);
 
     area->drag_source_set (dnd_targets);
     area->queue_resize ();
@@ -158,8 +164,13 @@ Preview::on_area_drag_data_get (const Glib::RefPtr<Gdk::DragContext>& /* context
                                 guint /* info */,
                                 guint /* time */)
 {
-    SnippetExporter *exporter = SnippetExporterFactory::create (SnippetExporterFactory::EXPORT_EPS_URI,
+    Glib::ustring active_exporter_id = export_format_combo->get_active_text ();
+
+    SnippetExporter *exporter = SnippetExporterFactory::create (active_exporter_id,
                                                                 snippet);
+    if (!exporter)
+        return;
+
     gchar *data = exporter->get_data ();
 
     if (!data)
@@ -183,7 +194,8 @@ Preview::clear ()
     button_zoom_in->set_sensitive (false);
     button_zoom_100->set_sensitive (false);
     button_zoom_fit->set_sensitive (false);
-    zoom_label.set_sensitive (false);
+    zoom_label->set_sensitive (false);
+    export_format_combo->set_sensitive (false);
 
     area->drag_source_unset ();
     area->queue_draw ();
@@ -252,7 +264,7 @@ void
 Preview::on_zoom_cb ()
 {
     double zoom = property_zoom ();
-    zoom_label.set_text (Glib::ustring::format (std::fixed, std::setprecision (0), zoom * 100) + "%");
+    zoom_label->set_text (Glib::ustring::format (std::fixed, std::setprecision (0), zoom * 100) + "%");
 }
 
 

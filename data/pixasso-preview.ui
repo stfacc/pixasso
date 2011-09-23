@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <!-- interface-requires gtk+ 3.0 -->
+  <object class="GtkToolbar" id="toolbar">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <style>
+      <class name="inline-toolbar"/>
+    </style>
+    <child>
+      <object class="GtkToolItem" id="zoom-button-group">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkBox" id="zoom-button-group-box">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkButton" id="button-zoom-out">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkImage" id="zoom-out-image">
+                    <property name="icon_name">gtk-zoom-out</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="button-zoom-in">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkImage" id="zoom-in-image">
+                    <property name="stock">gtk-zoom-in</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="button-zoom-100">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkImage" id="zoom-100-image">
+                    <property name="stock">gtk-zoom-100</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="button-zoom-fit">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkImage" id="zoom-fit-image">
+                    <property name="stock">gtk-zoom-fit</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkToolItem" id="zoom-label-item">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+	<property name="margin-left">6</property>
+	<child>
+	  <object class="GtkLabel" id="zoom-label">
+	    <property name="visible">True</property>
+	  </object>
+	</child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparatorToolItem" id="separator-item">
+	<property name="draw">False</property>
+      </object>
+      <packing>
+	<property name="expand">True</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkToolItem" id="export-format-item">
+	<!--FIXME: see comments in pixasso-preview.cpp-->
+	<child>
+	  <object class="GtkComboBoxText" id="export-format-combo">
+	    <property name="tooltip_markup" translatable="yes">Choose export format</property>
+	    <property name="tooltip_text">Choose export format</property>
+	  </object>
+	</child>
+      </object>
+    </child>
+  </object>
+</interface>

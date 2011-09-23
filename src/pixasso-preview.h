@@ -69,12 +69,13 @@ private:
     Gtk::Button *button_zoom_in;
     Gtk::Button *button_zoom_100;
     Gtk::Button *button_zoom_fit;
+    Gtk::Label *zoom_label;
+    Gtk::ComboBoxText *export_format_combo;
 
     std::vector<Gtk::TargetEntry> dnd_targets;
     Glib::RefPtr<Snippet> snippet;
     Glib::Property<double> prop_zoom;
 
-    Gtk::Label zoom_label;
     void set_zoom (double);
     void set_zoom_step (double);
     void set_zoom_100 ();

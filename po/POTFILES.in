@@ -2,6 +2,7 @@
 # Please keep this file sorted alphabetically.
 [enconding: UTF-8]
 [type: gettext/glade]data/pixasso.ui
+[type: gettext/glade]data/pixasso-preview.ui
 [type: gettext/glade]data/pixasso-snippet-editor.ui
 src/pixasso-history-view.cpp
 src/pixasso-snippet.cpp
