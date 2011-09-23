@@ -154,3 +154,45 @@ SnippetExporterFactory::create (ExportFormat format,
     exporter->set_snippet (snippet);
     return exporter;
 }
+
+SnippetExporter *
+SnippetExporterFactory::create (Glib::ustring id)
+{
+    for (int i = 0; i < N_EXPORT; ++i)
+        if (get_id ((ExportFormat) i) == id)
+            return create ((ExportFormat) i);
+
+    g_warning ("SnippetExporterFactory: couldn't found id %s", id.c_str ());
+    return NULL;
+}
+
+SnippetExporter *
+SnippetExporterFactory::create (Glib::ustring id,
+                                Glib::RefPtr<Snippet> snippet)
+{
+    SnippetExporter *exporter;
+
+    exporter = create (id);
+
+    if (exporter)
+        exporter->set_snippet (snippet);
+
+    return exporter;
+}
+
+Glib::ustring
+SnippetExporterFactory::get_id (ExportFormat format)
+{
+    switch (format) {
+    case EXPORT_PLAIN_TEXT:
+        return SnippetExporterPlainText::get_id ();
+    case EXPORT_EPS_URI:
+        return SnippetExporterEpsUri::get_id ();
+    case EXPORT_PDF_URI:
+        return SnippetExporterPdfUri::get_id ();
+    case EXPORT_PNG_URI:
+        return SnippetExporterPngUri::get_id ();
+    default:
+        return "";
+    }
+}

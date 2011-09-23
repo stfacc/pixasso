@@ -70,6 +70,9 @@ namespace Pixasso
         { return "text/plain"; }
 
         virtual gchar *get_data ();
+
+        static Glib::ustring get_id ()
+        { return "Plain text"; }
     };
 
     class SnippetExporterEpsUri : public SnippetExporter
@@ -85,6 +88,9 @@ namespace Pixasso
         { return "text/uri-list"; }
 
         virtual gchar *get_data ();
+
+        static Glib::ustring get_id ()
+        { return "EPS"; }
 
     private:
         void generate ();
@@ -103,6 +109,9 @@ namespace Pixasso
         { return "text/uri-list"; }
 
         virtual gchar *get_data ();
+
+        static Glib::ustring get_id ()
+        { return "PDF"; }
     };
 
     class SnippetExporterPngUri : public SnippetExporter
@@ -118,6 +127,9 @@ namespace Pixasso
         { return "text/uri-list"; }
 
         virtual gchar *get_data ();
+
+        static Glib::ustring get_id ()
+        { return "PNG"; }
 
     private:
         void generate ();
@@ -140,6 +152,9 @@ namespace Pixasso
 
         static SnippetExporter *create (ExportFormat format);
         static SnippetExporter *create (ExportFormat format, Glib::RefPtr<Snippet> snippet);
+        static SnippetExporter *create (Glib::ustring id);
+        static SnippetExporter *create (Glib::ustring id, Glib::RefPtr<Snippet> snippet);
+        static Glib::ustring get_id (ExportFormat format);
     };
 
 } // End namespace Pixasso
