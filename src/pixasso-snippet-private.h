@@ -33,7 +33,7 @@ namespace Pixasso
     class SnippetPrivate {
     public:
         Glib::ustring data_dir;
-        time_t creation_time;
+        Glib::TimeVal creation_time;
 
         Glib::ustring preamble_name;
         Glib::ustring font_size;

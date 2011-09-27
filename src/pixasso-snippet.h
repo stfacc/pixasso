@@ -60,7 +60,7 @@ public:
     ~Snippet ();
 
     Glib::ustring get_data_dir ();
-    time_t get_creation_time ();
+    Glib::TimeVal get_creation_time ();
 
     Glib::ustring get_preamble_name ();
     Glib::ustring get_font_size ();

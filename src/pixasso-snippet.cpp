@@ -40,6 +40,7 @@
 #define KEYFILE_FILENAME "snippet.ini"
 
 #define KEYFILE_GROUP "Snippet"
+#define KEYFILE_CREATION_TIME "creation-time"
 #define KEYFILE_PREAMBLE "preamble"
 #define KEYFILE_FONT_SIZE "font-size"
 #define KEYFILE_COLOR "color"
@@ -91,6 +92,9 @@ Snippet::Snippet (Glib::ustring preamble_name,
     priv->data_dir = Glib::ustring (data_dir_cstr);
     g_free (data_dir_cstr);
 
+    priv->creation_time.assign_current_time ();
+    keyfile.set_string (KEYFILE_GROUP, KEYFILE_CREATION_TIME, priv->creation_time.as_iso8601 ());
+
     if (preamble_name != "default") {
         throw std::runtime_error ("Snippet: preamble '" + preamble_name + "' does not exist");
     }
@@ -136,6 +140,7 @@ Snippet::Snippet (Glib::ustring dir_name)
 
     filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
     keyfile.load_from_file (filename, Glib::KEY_FILE_NONE);
+    priv->creation_time.assign_from_iso8601 (keyfile.get_string (KEYFILE_GROUP, KEYFILE_CREATION_TIME));
     priv->preamble_name = keyfile.get_string (KEYFILE_GROUP, KEYFILE_PREAMBLE);
     priv->font_size = keyfile.get_string (KEYFILE_GROUP, KEYFILE_FONT_SIZE);
     priv->color.set (keyfile.get_string (KEYFILE_GROUP, KEYFILE_COLOR));
@@ -215,7 +220,7 @@ Snippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
     cr->paint ();
 }
 
-time_t
+Glib::TimeVal
 Snippet::get_creation_time ()
 {
     return priv->creation_time;
