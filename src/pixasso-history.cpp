@@ -25,8 +25,10 @@
 
 #include "pixasso-snippet.h"
 
+#include <glib/gi18n.h>
 #include <gtkmm/treemodel.h>
 #include <glibmm/fileutils.h>
+#include <glibmm/datetime.h>
 #include <iostream>
 
 
@@ -36,8 +38,25 @@ History::History ()
 {
     g_debug ("Creating history list");
     set_column_types (m_Columns);
+    set_sort_column (m_Columns.m_CreationTime, Gtk::SORT_DESCENDING);
+    set_sort_func (m_Columns.m_CreationTime, sigc::mem_fun (*this, &History::compare_time));
 
     populate ();
+}
+
+int
+History::compare_time (const Gtk::TreeModel::iterator & a,
+                       const Gtk::TreeModel::iterator & b)
+{
+    Gtk::TreeModel::Row row_a = *a;
+    Gtk::TreeModel::Row row_b = *b;
+
+    if (row_a[m_Columns.m_CreationTime] > row_b[m_Columns.m_CreationTime])
+        return 1;
+    else if (row_a[m_Columns.m_CreationTime] < row_b[m_Columns.m_CreationTime])
+        return -1;
+    else
+        return 0; // FAPP this is impossible!
 }
 
 History::~History ()
@@ -55,7 +74,13 @@ History::prepend_snippet (Glib::RefPtr<Snippet> &snippet)
 
     Gtk::TreeModel::Row row = *(prepend ());
     row[m_Columns.m_Snippet] = snippet;
-    row[m_Columns.m_LatexBody] = Glib::Markup::escape_text (snippet->get_latex_body ());
+    row[m_Columns.m_LatexBody] = snippet->get_latex_body ();
+    row[m_Columns.m_CreationTime] = snippet->get_creation_time ();
+
+    Glib::DateTime dt = Glib::DateTime::create_now_local (snippet->get_creation_time ());
+    row[m_Columns.m_Tooltip] =
+        Glib::Markup::escape_text (snippet->get_latex_body ()) + "\n"
+        "Created: " + dt.format ("%c");
 }
 
 void

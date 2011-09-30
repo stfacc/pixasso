@@ -37,6 +37,8 @@ public:
     enum {
         SNIPPET_C,
         LATEX_BODY_C,
+        CREATION_TIME_C,
+        TOOLTIP_C,
         N_COLUMNS
     };
 
@@ -51,13 +53,23 @@ protected:
     {
     public:
         ModelColumns()
-        { add (m_Snippet); add (m_LatexBody); }
+        {
+            add (m_Snippet);
+            add (m_LatexBody);
+            add (m_CreationTime);
+            add (m_Tooltip);
+        }
 
         Gtk::TreeModelColumn< Glib::RefPtr<Snippet> > m_Snippet;
         Gtk::TreeModelColumn< Glib::ustring > m_LatexBody;
+        Gtk::TreeModelColumn< Glib::TimeVal > m_CreationTime;
+        Gtk::TreeModelColumn< Glib::ustring > m_Tooltip;
     };
 
     ModelColumns m_Columns;
+
+    int compare_time (const Gtk::TreeModel::iterator &,
+                      const Gtk::TreeModel::iterator &);
 };
 
 } /* end namespace Pixasso */

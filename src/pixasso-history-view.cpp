@@ -73,6 +73,7 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
     HistoryCellRenderer *cell = Gtk::manage (new HistoryCellRenderer ());
     Gtk::TreeView::Column *column = Gtk::manage (new Gtk::TreeView::Column (_("History"), *cell));
     column->add_attribute (*cell, "snippet", History::SNIPPET_C);
+    column->set_sort_column (History::CREATION_TIME_C);
 
     m_TreeView.append_column (*column);
 
@@ -83,7 +84,7 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
         .connect (sigc::mem_fun (*this, &HistoryView::on_row_activated));
 
     m_TreeView.set_model (history);
-    m_TreeView.set_tooltip_column (History::LATEX_BODY_C);
+    m_TreeView.set_tooltip_column (History::TOOLTIP_C);
 
     set_shadow_type (Gtk::SHADOW_IN);
     add (m_TreeView);
