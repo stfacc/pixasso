@@ -26,6 +26,7 @@
 
 #include <gtkmm/grid.h>
 #include <gtkmm/liststore.h>
+#include <gtkmm/toolbar.h>
 #include <gtkmm/treeview.h>
 
 
@@ -40,8 +41,10 @@ public:
 
 protected:
     Gtk::TreeView m_TreeView;
+    Gtk::ToolButton *remove_button;
     Glib::RefPtr<History> history_model;
 
+    void on_selection_changed ();
     void on_clear_button_clicked ();
     void on_remove_button_clicked ();
     void on_row_activated (const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);

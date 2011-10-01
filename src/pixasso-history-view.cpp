@@ -97,6 +97,9 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
     m_TreeView.set_model (history_model);
     m_TreeView.set_tooltip_column (History::TOOLTIP_C);
 
+    m_TreeView.get_selection ()->signal_changed ()
+        .connect (sigc::mem_fun (*this, &HistoryView::on_selection_changed));
+
     Gtk::Widget *widget;
     refBuilder->get_widget ("history-scrolled", widget);
     widget->get_style_context ()->set_junction_sides (Gtk::JUNCTION_BOTTOM);
@@ -113,8 +116,9 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
     ((Gtk::Button *) widget)->signal_clicked ()
         .connect (sigc::mem_fun (*this, &HistoryView::on_clear_button_clicked));
 
-    refBuilder->get_widget ("remove-button", widget);
-    ((Gtk::Button *) widget)->signal_clicked ()
+    refBuilder->get_widget ("remove-button", remove_button);
+    remove_button->set_sensitive (false);
+    remove_button->signal_clicked ()
         .connect (sigc::mem_fun (*this, &HistoryView::on_remove_button_clicked));
 
     show_all_children ();
@@ -124,6 +128,12 @@ Gtk::TreeView *
 HistoryView::get_treeview ()
 {
     return &m_TreeView;
+}
+
+void
+HistoryView::on_selection_changed ()
+{
+    remove_button->set_sensitive (m_TreeView.get_selection ()->count_selected_rows () > 0);
 }
 
 void
