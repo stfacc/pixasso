@@ -29,6 +29,7 @@
 #include <gtkmm/treemodel.h>
 #include <glibmm/fileutils.h>
 #include <glibmm/datetime.h>
+#include <giomm/file.h>
 #include <iostream>
 
 
@@ -88,6 +89,12 @@ History::populate ()
 {
     Glib::ustring user_data_dir = Glib::get_user_data_dir ();
     Glib::ustring path = Glib::build_filename (user_data_dir, PACKAGE);
+
+    if (!Glib::file_test (path, Glib::FILE_TEST_EXISTS)) {
+        Gio::File::create_for_path (path)->make_directory_with_parents ();
+        return;
+    }
+
     Glib::Dir dir (path);
 
     Glib::RefPtr<Snippet> snippet;
