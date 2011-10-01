@@ -7,6 +7,7 @@ icon_DATA = pixasso.svg
 uidir = $(datadir)/pixasso
 ui_DATA = \
 	pixasso.ui			\
+	pixasso-history-view.ui		\
 	pixasso-preview.ui		\
 	pixasso-snippet-editor.ui
 

@@ -24,7 +24,7 @@
 
 #include "pixasso-history.h"
 
-#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/grid.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/treeview.h>
 
@@ -32,7 +32,7 @@
 namespace Pixasso
 {
 
-class HistoryView : public Gtk::ScrolledWindow
+class HistoryView : public Gtk::Grid
 {
 public:
     HistoryView (Glib::RefPtr<History> &);
@@ -40,7 +40,10 @@ public:
 
 protected:
     Gtk::TreeView m_TreeView;
-    void on_row_selected ();
+    Glib::RefPtr<History> history_model;
+
+    void on_clear_button_clicked ();
+    void on_remove_button_clicked ();
     void on_row_activated (const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);
 };
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <!-- interface-requires gtk+ 3.0 -->
+  <object class="GtkScrolledWindow" id="history-scrolled">
+    <property name="visible">True</property>
+    <property name="can_focus">True</property>
+    <property name="shadow_type">in</property>
+    <property name="hscrollbar_policy">never</property>
+    <property name="vscrollbar_policy">automatic</property>
+    <property name="vexpand">true</property>
+    <property name="width_request">150</property>
+  </object>
+  <object class="GtkToolbar" id="history-toolbar">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_size">1</property>
+    <property name="icon_size_set">True</property>
+    <style>
+      <class name="inline-toolbar"/>
+    </style>
+    <child>
+      <object class="GtkToolItem" id="clear-button-item">
+	<property name="visible">True</property>
+	<property name="tooltip_markup" translatable="yes">Permanently delete all snippets</property>
+	<property name="tooltip_text">Permanently delete all snippets</property>
+	<child>
+	  <object class="GtkButton" id="clear-button">
+	    <property name="label">Clear</property>
+	  </object>
+	</child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkToolButton" id="remove-button">
+	<property name="visible">True</property>
+	<property name="icon_name">user-trash-symbolic</property>
+	<property name="tooltip_markup" translatable="yes">Permanently delete selected snippet</property>
+	<property name="tooltip_text">Permanently delete selected snippet</property>
+      </object>
+    </child>
+  </object>
+</interface>
