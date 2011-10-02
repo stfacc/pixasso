@@ -37,7 +37,7 @@
 
 #define LATEX_BODY_FILENAME "b.tex"
 
-#define KEYFILE_FILENAME "snippet.ini"
+#define KEYFILE_FILENAME "snippet.conf"
 
 #define KEYFILE_GROUP "Snippet"
 #define KEYFILE_CREATION_TIME "creation-time"
