@@ -84,8 +84,8 @@
 	<!--FIXME: see comments in pixasso-preview.cpp-->
 	<child>
 	  <object class="GtkComboBoxText" id="export-format-combo">
-	    <property name="tooltip_markup" translatable="yes">Choose export format</property>
-	    <property name="tooltip_text">Choose export format</property>
+	    <property name="tooltip_markup" translatable="yes">Choose exported image format</property>
+	    <property name="tooltip_text">Choose exported image format</property>
 	  </object>
 	</child>
       </object>
