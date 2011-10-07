@@ -25,7 +25,7 @@
 	<property name="tooltip_text">Permanently delete all snippets</property>
 	<child>
 	  <object class="GtkButton" id="clear-button">
-	    <property name="label">Clear</property>
+	    <property name="label" translatable="yes">Clear</property>
 	  </object>
 	</child>
       </object>
