@@ -4,8 +4,8 @@
   <object class="GtkGrid" id="main-grid">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="column_spacing">10</property>
-    <property name="row_spacing">10</property>
+    <property name="column_spacing">15</property>
+    <property name="row_spacing">15</property>
     <child>
       <placeholder/>
     </child>
@@ -23,6 +23,8 @@
 	<property name="visible">True</property>
 	<property name="can_focus">False</property>
 	<property name="column_spacing">10</property>
+	<property name="halign">fill</property>
+	<property name="column_homogeneous">true</property>
 	<child>
 	  <object class="GtkButton" id="clear-button">
 	    <property name="label" translatable="yes">Clear</property>
@@ -30,6 +32,8 @@
 	    <property name="can_focus">True</property>
 	    <property name="receives_default">True</property>
 	    <property name="use_action_appearance">False</property>
+	    <property name="width_request">100</property>
+	    <property name="halign">start</property>
 	  </object>
 	  <packing>
 	    <property name="left_attach">0</property>
@@ -40,11 +44,33 @@
 	</child>
 	<child>
 	  <object class="GtkButton" id="apply-button">
-	    <property name="label" translatable="yes">Apply</property>
 	    <property name="visible">True</property>
 	    <property name="can_focus">True</property>
 	    <property name="receives_default">True</property>
 	    <property name="use_action_appearance">False</property>
+	    <property name="width_request">100</property>
+	    <property name="halign">end</property>
+	    <child>
+	      <object class="GtkAlignment" id="apply-button-alignment">
+		<property name="xalign">0.5</property>
+		<property name="xscale">0</property>
+		<child>
+		  <object class="GtkGrid" id="apply-button-box">
+		    <property name="orientation">horizontal</property>
+		    <child>
+		      <object class="GtkLabel" id="apply-button-label">
+			<property name="label">LaTeX</property>
+		      </object>
+		    </child>
+		    <child>
+		      <object class="GtkImage" id="apply-button-image">
+			<property name="icon_name">media-playback-start-symbolic</property>
+		      </object>
+		    </child>
+		  </object>
+		</child>
+	      </object>
+	    </child>
 	  </object>
 	  <packing>
 	    <property name="left_attach">1</property>
@@ -70,6 +96,7 @@
 	    <property name="can_focus">True</property>
 	    <property name="receives_default">True</property>
 	    <property name="use_action_appearance">False</property>
+	    <property name="width_request">100</property>
 	  </object>
 	  <packing>
 	    <property name="left_attach">0</property>
