@@ -231,8 +231,14 @@ Preview::set_zoom_100 ()
 void
 Preview::set_zoom_fit ()
 {
-    double x_scale_request = scrolled.get_allocated_width () / snippet->get_width ();
-    double y_scale_request = scrolled.get_allocated_height () / snippet->get_height ();
+    Gtk::Border border = scrolled.get_style_context ()->get_border ();
+    Gtk::Border padding = scrolled.get_style_context ()->get_padding ();
+    int h_border = border.get_left () + border.get_right () + padding.get_left () + padding.get_right ();
+    int v_border = border.get_top () + border.get_bottom () + padding.get_top () + padding.get_bottom ();
+
+    double x_scale_request = (scrolled.get_allocated_width () - h_border) / snippet->get_width ();
+    double y_scale_request = (scrolled.get_allocated_height () - v_border) / snippet->get_height ();
+
     set_zoom (MIN (x_scale_request, y_scale_request));
 }
 
