@@ -53,17 +53,13 @@ public:
 private:
     Glib::Property< Glib::RefPtr<Snippet> > prop_snippet;
 
-    static const int MINIMUM_CELL_HEIGHT = 50;
-
 protected:
     virtual void render_vfunc (const Cairo::RefPtr< Cairo::Context > & cr,
                                Gtk::Widget& widget,
                                const Gdk::Rectangle& background_area,
                                const Gdk::Rectangle& cell_area,
                                Gtk::CellRendererState flags);
-    virtual void get_preferred_width_vfunc (Gtk::Widget& widget,
-                                            int& minimum_width,
-                                            int& natural_width) const;
+
     virtual void get_preferred_height_for_width_vfunc (Gtk::Widget& widget,
                                                        int width,
                                                        int& minimum_height,
@@ -210,20 +206,24 @@ HistoryCellRenderer::render_vfunc (const Cairo::RefPtr< Cairo::Context > & cr,
 
 void
 HistoryCellRenderer::get_preferred_height_for_width_vfunc (Gtk::Widget& widget,
-                                                           int width,
+                                                           int /* width */,
                                                            int& minimum_height,
                                                            int& natural_height) const
 {
-    Glib::RefPtr<Snippet> snippet = property_snippet ();
-    double snippet_width = snippet->get_width ();
-    double snippet_height = snippet->get_height ();
-    natural_height = minimum_height = MAX (MIN (ceil (snippet_height), ceil (snippet_height * width / snippet_width)), MINIMUM_CELL_HEIGHT);
-}
+    /* We want the cell to have a fixed aspect ratio (namely,
+     * the golden ratio). To avoid vertical resizing when
+     * the scrollbar appears or disappears, we use the width of
+     * of the scrolled window to compute the height of the cell.
+     */
 
-void
-HistoryCellRenderer::get_preferred_width_vfunc (Gtk::Widget& widget,
-                                                int& minimum_width,
-                                                int& natural_width) const
-{
-    minimum_width = natural_width = widget.get_allocated_width ();
+    Gtk::ScrolledWindow *scrolled = (Gtk::ScrolledWindow *) widget.get_parent ();
+
+    Gtk::Border border = scrolled->get_style_context ()->get_border ();
+    Gtk::Border padding = scrolled->get_style_context ()->get_padding ();
+    int width = scrolled->get_allocated_width () -
+        border.get_left () - border.get_right () -
+        padding.get_left () - padding.get_right ();
+
+#define GOLDEN_RATION 1.618
+    natural_height = minimum_height = width / GOLDEN_RATION;
 }
