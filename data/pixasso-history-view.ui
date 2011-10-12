@@ -34,8 +34,8 @@
       <object class="GtkToolButton" id="remove-button">
 	<property name="visible">True</property>
 	<property name="icon_name">user-trash-symbolic</property>
-	<property name="tooltip_markup" translatable="yes">Permanently delete selected snippet</property>
-	<property name="tooltip_text">Permanently delete selected snippet</property>
+	<property name="tooltip_markup" translatable="yes">Permanently delete selected snippets</property>
+	<property name="tooltip_text">Permanently delete selected snippets</property>
       </object>
     </child>
   </object>

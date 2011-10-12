@@ -95,6 +95,8 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
 
     m_TreeView.get_selection ()->signal_changed ()
         .connect (sigc::mem_fun (*this, &HistoryView::on_selection_changed));
+    m_TreeView.get_selection ()->set_mode (Gtk::SELECTION_MULTIPLE);
+    m_TreeView.set_rubber_banding (true);
 
     Gtk::Widget *widget;
     refBuilder->get_widget ("history-scrolled", widget);
@@ -158,19 +160,29 @@ HistoryView::on_remove_button_clicked ()
 {
     Gtk::Window *parent = (Gtk::Window *) get_toplevel ();
     Gtk::MessageDialog dialog (*parent,
-                               _("Delete selected snippet?"),
+                               _("Delete selected snippets?"),
                                false,
                                Gtk::MESSAGE_WARNING,
                                Gtk::BUTTONS_OK_CANCEL);
     if (dialog.run () != Gtk::RESPONSE_OK)
         return;
 
-    Glib::RefPtr<Snippet> snippet;
-    Gtk::TreeIter iter = m_TreeView.get_selection ()->get_selected ();
-    (*iter).get_value (History::SNIPPET_C, snippet);
+    std::vector<Gtk::TreeModel::Path> row_paths = m_TreeView.get_selection ()->get_selected_rows ();
+    std::vector<Gtk::TreeIter> row_iters;
 
-    snippet->set_remove_data_on_delete (true);
-    history_model->erase (iter);
+    std::vector<Gtk::TreeModel::Path>::iterator i;
+    for (i = row_paths.begin (); i != row_paths.end (); ++i)
+        row_iters.push_back (m_TreeView.get_model ()->get_iter (*i));
+
+    Glib::RefPtr<Snippet> snippet;
+    std::vector<Gtk::TreeIter>::iterator j;
+    Gtk::TreeIter iter;
+    for (j = row_iters.begin (); j != row_iters.end (); ++j) {
+        iter = *j;
+        (*iter).get_value (History::SNIPPET_C, snippet);
+        snippet->set_remove_data_on_delete (true);
+        history_model->erase (iter);
+    }
 }
 
 void
