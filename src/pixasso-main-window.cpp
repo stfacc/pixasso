@@ -114,6 +114,8 @@ MainWindow::on_apply_button_clicked ()
         Glib::RefPtr<Snippet> snippet;
         snippet = snippet_editor->create_snippet ();
         history->prepend_snippet (snippet);
+        history_view->get_treeview ()->scroll_to_row (Gtk::TreePath ("0"));
+        history_view->get_treeview ()->get_selection ()->unselect_all ();
         preview->set_snippet (snippet);
     } catch (std::exception &e) {
         std::cerr << "Error: " << e.what () << std::endl;
