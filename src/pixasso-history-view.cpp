@@ -190,15 +190,33 @@ HistoryCellRenderer::render_vfunc (const Cairo::RefPtr< Cairo::Context > & cr,
                                    Gtk::CellRendererState flags)
 {
     Glib::RefPtr<Snippet> snippet = property_snippet ();
-    int x = cell_area.get_x ();
-    int y = cell_area.get_y ();
-    double scale = cell_area.get_width () / snippet->get_width ();
 
-    if (scale > 1) {
-        x += (cell_area.get_width () - snippet->get_width ()) / 2;
-        scale = 1;
-    }
-    y += (cell_area.get_height () - snippet->get_height () * scale) / 2;
+    // Draw a 1px line at the bottom of the cell
+    Gdk::RGBA border_color = widget.get_style_context ()->get_border_color ();
+    cr->set_source_rgb (border_color.get_red (),
+                        border_color.get_green (),
+                        border_color.get_blue ());
+    cr->move_to (background_area.get_x (),
+                 background_area.get_y () + background_area.get_height ());
+    cr->line_to (background_area.get_x () + background_area.get_width (),
+                 background_area.get_y () + background_area.get_height ());
+    cr->set_line_width (1);
+    cr->stroke ();
+
+    // Draw the snippet. We add 2px margin at top and at bottom
+    // between the line and the snippet
+    int x = cell_area.get_x ();
+    int y = cell_area.get_y () + 2;
+
+    int snippet_area_width = cell_area.get_width ();
+    int snippet_area_height = cell_area.get_height () - 4;
+
+    double scale = MIN (MIN (snippet_area_width / snippet->get_width (),
+                             snippet_area_height / snippet->get_height ()),
+                        1);
+
+    x += (snippet_area_width - snippet->get_width () * scale) / 2;
+    y += (snippet_area_height - snippet->get_height () * scale) / 2;
 
     cr->translate (x, y);
     snippet->render (cr, scale);
