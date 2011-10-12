@@ -30,6 +30,7 @@
 #include <gdkmm/rgba.h>
 #include <giomm/file.h>
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <glibmm.h>
 #include <iostream>
 #include <poppler.h>
@@ -85,19 +86,15 @@ Snippet::Snippet (Glib::ustring preamble_name,
 
     data_dir_cstr = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
     if (!mkdtemp (data_dir_cstr)) {
-        throw std::runtime_error ("Snippet: cache directory cannot be created");
+        throw std::runtime_error ("Snippet: data directory cannot be created");
     } else {
-        g_debug ("Snippet: creating cache directory %s", data_dir_cstr);
+        g_debug ("Snippet: creating data directory %s", data_dir_cstr);
     }
     priv->data_dir = Glib::ustring (data_dir_cstr);
-    g_free (data_dir_cstr);
 
     priv->creation_time.assign_current_time ();
     keyfile.set_string (KEYFILE_GROUP, KEYFILE_CREATION_TIME, priv->creation_time.as_iso8601 ());
 
-    if (preamble_name != "default") {
-        throw std::runtime_error ("Snippet: preamble '" + preamble_name + "' does not exist");
-    }
     priv->preamble_name = preamble_name;
     keyfile.set_string (KEYFILE_GROUP, KEYFILE_PREAMBLE, preamble_name);
 
@@ -105,8 +102,6 @@ Snippet::Snippet (Glib::ustring preamble_name,
     keyfile.set_string (KEYFILE_GROUP, KEYFILE_MATH_MODE, math_mode);
 
     priv->latex_body = latex_body;
-    filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
-    Glib::file_set_contents (filename, priv->latex_body);
 
     priv->font_size = font_size;
     keyfile.set_string (KEYFILE_GROUP, KEYFILE_FONT_SIZE, font_size);
@@ -114,12 +109,23 @@ Snippet::Snippet (Glib::ustring preamble_name,
     priv->color = color;
     keyfile.set_string (KEYFILE_GROUP, KEYFILE_COLOR, color.to_string ());
 
-    filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
-    Glib::file_set_contents (filename, keyfile.to_data ());
-
     priv->cached_zoom_factor = -1;
 
-    priv->generate ();
+    try {
+        priv->generate ();
+
+        filename = Glib::build_filename (priv->data_dir, LATEX_BODY_FILENAME);
+        Glib::file_set_contents (filename, priv->latex_body);
+
+        filename = Glib::build_filename (priv->data_dir, KEYFILE_FILENAME);
+        Glib::file_set_contents (filename, keyfile.to_data ());
+
+        g_free (data_dir_cstr);
+    } catch (std::exception &e) {
+        g_remove (data_dir_cstr);
+        g_free (data_dir_cstr);
+        throw e;
+    }
 }
 
 // Create a Snippet from a directory name
