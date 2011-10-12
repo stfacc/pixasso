@@ -86,9 +86,6 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
 
     m_TreeView.append_column (*column);
 
-    m_TreeView.signal_row_activated ()
-        .connect (sigc::mem_fun (*this, &HistoryView::on_row_activated));
-
     history_model = history;
     m_TreeView.set_model (history_model);
     m_TreeView.set_tooltip_column (History::TOOLTIP_C);
@@ -183,15 +180,6 @@ HistoryView::on_remove_button_clicked ()
         snippet->set_remove_data_on_delete (true);
         history_model->erase (iter);
     }
-}
-
-void
-HistoryView::on_row_activated (const Gtk::TreeModel::Path& path,
-                                      Gtk::TreeViewColumn* /* column */)
-{
-    Glib::RefPtr<Snippet> snippet;
-    (*m_TreeView.get_model ()->get_iter (path)).get_value (History::SNIPPET_C, snippet);
-    g_debug ("Activated snippet: %s", snippet->get_latex_body ().c_str ());
 }
 
 void

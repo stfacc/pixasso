@@ -37,7 +37,6 @@ using namespace Pixasso;
 
 History::History ()
 {
-    g_debug ("Creating history list");
     set_column_types (m_Columns);
     set_sort_column (m_Columns.m_CreationTime, Gtk::SORT_DESCENDING);
     set_sort_func (m_Columns.m_CreationTime, sigc::mem_fun (*this, &History::compare_time));
@@ -67,12 +66,6 @@ History::~History ()
 void
 History::prepend_snippet (Glib::RefPtr<Snippet> &snippet)
 {
-    g_debug ("Creating history element %s: %s --- %fx%f",
-             snippet->get_data_dir ().c_str (),
-             snippet->get_latex_body ().c_str (),
-             snippet->get_width (),
-             snippet->get_height ());
-
     Gtk::TreeModel::Row row = *(prepend ());
     row[m_Columns.m_Snippet] = snippet;
     row[m_Columns.m_LatexBody] = snippet->get_latex_body ();

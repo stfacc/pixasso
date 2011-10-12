@@ -103,8 +103,6 @@ MainWindow::on_history_row_activated (const Gtk::TreeModel::Path& path,
     (*history_view->get_treeview ()->get_model ()->get_iter (path)).get_value (0, snippet);
     preview->set_snippet (snippet);
     snippet_editor->fill_with_snippet (snippet);
-
-    g_debug ("Application Activated snippet: %s", snippet->get_latex_body ().c_str ());
 }
 
 void

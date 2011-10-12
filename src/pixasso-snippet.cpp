@@ -85,11 +85,9 @@ Snippet::Snippet (Glib::ustring preamble_name,
     priv->remove_data_on_delete = false;
 
     data_dir_cstr = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
-    if (!mkdtemp (data_dir_cstr)) {
+    if (!mkdtemp (data_dir_cstr))
         throw std::runtime_error ("Snippet: data directory cannot be created");
-    } else {
-        g_debug ("Snippet: creating data directory %s", data_dir_cstr);
-    }
+
     priv->data_dir = Glib::ustring (data_dir_cstr);
 
     priv->creation_time.assign_current_time ();
@@ -134,8 +132,6 @@ Snippet::Snippet (Glib::ustring dir_name)
 {
     Glib::ustring filename;
     Glib::KeyFile keyfile;
-
-    g_debug ("Snippet: creating snippet from directory %s", dir_name.c_str ());
 
     priv->remove_data_on_delete = false;
 
@@ -210,7 +206,6 @@ Snippet::render (Cairo::RefPtr<Cairo::Context> cr, double zoom_factor)
     Cairo::RefPtr<Cairo::Context> context;
 
     if (zoom_factor != priv->cached_zoom_factor) {
-        g_debug ("Regenarating cached surface");
         priv->cached_surface = Cairo::ImageSurface::create (Cairo::FORMAT_ARGB32,
                                                             ceil (get_width () * zoom_factor),
                                                             ceil (get_height () * zoom_factor));

@@ -47,7 +47,6 @@ protected:
     void on_selection_changed ();
     void on_clear_button_clicked ();
     void on_remove_button_clicked ();
-    void on_row_activated (const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*);
 };
 
 } /* end namespace Pixasso */

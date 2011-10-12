@@ -40,7 +40,6 @@ int main (int argc, char **argv)
 
     tmpdir = Pixasso::create_tmpdir ();
     chdir (tmpdir.c_str ());
-    g_debug ("Working in: %s", tmpdir.c_str ());
 
     Pixasso::MainWindow window;
     kit.run (window);
