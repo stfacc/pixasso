@@ -41,11 +41,13 @@ public:
 
 protected:
     Gtk::TreeView m_TreeView;
-    Gtk::ToolButton *remove_button;
+    Gtk::Button *show_button;
+    Gtk::Button *remove_button;
     Glib::RefPtr<History> history_model;
 
     void on_selection_changed ();
     void on_clear_button_clicked ();
+    void on_show_button_clicked ();
     void on_remove_button_clicked ();
 };
 

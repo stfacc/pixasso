@@ -111,6 +111,11 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
     ((Gtk::Button *) widget)->signal_clicked ()
         .connect (sigc::mem_fun (*this, &HistoryView::on_clear_button_clicked));
 
+    refBuilder->get_widget ("show-button", show_button);
+    show_button->set_sensitive (false);
+    show_button->signal_clicked ()
+        .connect (sigc::mem_fun (*this, &HistoryView::on_show_button_clicked));
+
     refBuilder->get_widget ("remove-button", remove_button);
     remove_button->set_sensitive (false);
     remove_button->signal_clicked ()
@@ -128,7 +133,10 @@ HistoryView::get_treeview ()
 void
 HistoryView::on_selection_changed ()
 {
-    remove_button->set_sensitive (m_TreeView.get_selection ()->count_selected_rows () > 0);
+    gint selected_rows = m_TreeView.get_selection ()->count_selected_rows ();
+
+    remove_button->set_sensitive (selected_rows > 0);
+    show_button->set_sensitive (selected_rows == 1);
 }
 
 void
@@ -150,6 +158,15 @@ HistoryView::on_clear_button_clicked ()
         snippet->set_remove_data_on_delete (true);
         iter = history_model->erase (iter);
     }
+}
+
+void
+HistoryView::on_show_button_clicked ()
+{
+    // The button activating this callback is sensitive
+    // only when the selection contains exactly one element 
+    std::vector<Gtk::TreeModel::Path> row_paths = m_TreeView.get_selection ()->get_selected_rows ();
+    m_TreeView.row_activated (row_paths[0], *(m_TreeView.get_column (0)));
 }
 
 void

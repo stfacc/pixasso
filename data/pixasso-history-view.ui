@@ -19,6 +19,45 @@
       <class name="inline-toolbar"/>
     </style>
     <child>
+      <object class="GtkToolItem" id="snippet-button-group">
+	<property name="visible">True</property>
+	<child>
+	  <object class="GtkBox" id="snippet-button-box">
+	    <property name="visible">True</property>
+	    <property name="can_focus">False</property>
+	    <child>
+	      <object class="GtkButton" id="show-button">
+		<property name="tooltip_markup" translatable="yes">Show selected snippet in editor</property>
+		<property name="tooltip_text">Show selected snippet in editor</property>
+		<property name="label" translatable="yes">Show</property>
+	      </object>
+	    </child>
+	    <child>
+	      <object class="GtkButton" id="remove-button">
+		<property name="visible">True</property>
+		<property name="tooltip_markup" translatable="yes">Permanently delete selected snippets</property>
+		<property name="tooltip_text">Permanently delete selected snippets</property>
+		<child>
+		  <object class="GtkImage" id="remove-button-image">
+		    <property name="icon_size">1</property>
+		    <property name="icon_name">user-trash-symbolic</property>
+		  </object>
+		</child>
+	      </object>
+	    </child>
+	  </object>
+	</child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparatorToolItem" id="separator-item">
+	<property name="draw">False</property>
+      </object>
+      <packing>
+	<property name="expand">True</property>
+      </packing>
+    </child>
+    <child>
       <object class="GtkToolItem" id="clear-button-item">
 	<property name="visible">True</property>
 	<property name="tooltip_markup" translatable="yes">Permanently delete all snippets</property>
@@ -28,14 +67,6 @@
 	    <property name="label" translatable="yes">Clear</property>
 	  </object>
 	</child>
-      </object>
-    </child>
-    <child>
-      <object class="GtkToolButton" id="remove-button">
-	<property name="visible">True</property>
-	<property name="icon_name">user-trash-symbolic</property>
-	<property name="tooltip_markup" translatable="yes">Permanently delete selected snippets</property>
-	<property name="tooltip_text">Permanently delete selected snippets</property>
       </object>
     </child>
   </object>
