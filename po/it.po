@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PiXasso 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-07 11:35+0200\n"
+"POT-Creation-Date: 2011-10-14 11:58+0200\n"
 "PO-Revision-Date: 2011-09-15 15:36+0200\n"
 "Last-Translator: Stefano Facchini <stefano.facchini@gmail.com>\n"
 "Language-Team: Italian\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Clear"
 msgstr "Pulisci"
 
-#: ../data/pixasso.ui.h:2 ../src/pixasso-history-view.cpp:87
+#: ../data/pixasso.ui.h:2 ../src/pixasso-history-view.cpp:83
 msgid "History"
 msgstr "Cronologia"
 
@@ -30,8 +30,16 @@ msgid "Permanently delete all snippets"
 msgstr "Cancella tutti gli snippet in modo permanent"
 
 #: ../data/pixasso-history-view.ui.h:3
-msgid "Permanently delete selected snippet"
-msgstr "Cancella lo snippet selezionato in modo permanente"
+msgid "Permanently delete selected snippets"
+msgstr "Cancella gli snippet selezionati in modo permanente"
+
+#: ../data/pixasso-history-view.ui.h:4
+msgid "Show"
+msgstr "Mostra"
+
+#: ../data/pixasso-history-view.ui.h:5
+msgid "Show selected snippet in editor"
+msgstr "Mostra lo snippet nell'editor"
 
 #: ../data/pixasso-preview.ui.h:1
 msgid "Choose exported image format"
@@ -41,22 +49,22 @@ msgstr "Scegli il formato dell'immagine esportata"
 msgid "Font:"
 msgstr "Carattere:"
 
-#: ../src/pixasso-history-view.cpp:144
+#: ../src/pixasso-history-view.cpp:147
 msgid "Delete all snippets?"
 msgstr "Cancellare tutti gli snippet?"
 
-#: ../src/pixasso-history-view.cpp:165
-msgid "Delete selected snippet?"
-msgstr "Cancellare lo snippet selezionato?"
+#: ../src/pixasso-history-view.cpp:177
+msgid "Delete selected snippets?"
+msgstr "Cancellare gli snippet selezionati?"
 
-#: ../src/pixasso-snippet.cpp:57
+#: ../src/pixasso-snippet.cpp:58
 msgid "Display"
-msgstr ""
+msgstr "Display"
 
-#: ../src/pixasso-snippet.cpp:60
+#: ../src/pixasso-snippet.cpp:61
 msgid "Inline"
 msgstr "In linea"
 
-#: ../src/pixasso-snippet.cpp:63
+#: ../src/pixasso-snippet.cpp:64
 msgid "Text"
 msgstr "Testo"
