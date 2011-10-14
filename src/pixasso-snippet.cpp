@@ -80,8 +80,6 @@ Snippet::Snippet (Glib::ustring preamble_name,
     Glib::ustring filename;
     Glib::KeyFile keyfile;
 
-    g_debug ("Snippet: creating snippet from data");
-
     priv->remove_data_on_delete = false;
 
     data_dir_cstr = g_build_filename (g_get_user_data_dir (), PACKAGE, "XXXXXX", NULL);
@@ -162,8 +160,7 @@ Snippet::Snippet (Glib::ustring dir_name)
 Snippet::~Snippet ()
 {
     if (priv->remove_data_on_delete) {
-        g_debug ("Snippet: deleting %s", priv->data_dir.c_str ());
-        ::remove_dir (priv->data_dir);
+        remove_dir (priv->data_dir);
     }
 
     delete priv;
