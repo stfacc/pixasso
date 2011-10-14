@@ -108,7 +108,7 @@ HistoryView::HistoryView (Glib::RefPtr<History> &history)
     attach (*toolbar, 0, 1, 1, 1);
 
     refBuilder->get_widget ("clear-button", widget);
-    ((Gtk::Button *) widget)->signal_clicked ()
+    ((Gtk::ToolButton *) widget)->signal_clicked ()
         .connect (sigc::mem_fun (*this, &HistoryView::on_clear_button_clicked));
 
     refBuilder->get_widget ("show-button", show_button);
