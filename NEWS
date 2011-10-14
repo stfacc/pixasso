@@ -1,0 +1,12 @@
+PiXasso version 0.3
+-------------------
+
+This is the first version after switching to C++ and gtkmm.
+
+Features include:
+
+* Snippet editor (selectors for font size, color and  math mode)
+* Snippet preview with zoom and drag-and-drop support for the
+  following formats: EPS, PDF, PNG
+* History with snippet thumbnails and detailed tooltips
+* Italian translation
