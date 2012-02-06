@@ -1,5 +1,12 @@
-- Drag and drop
-- i18n
+- report Latex errors
+- preamble manager
+- use GtkSourceView for SnippetEditor
+- solve transparency problem
+
+- async latex generation
+- Drag and drop also for history treeview? (clash with selection)
 - about dialog
 - add more tooltips
 - use namespace Pixasso
+- dynamical widget placement
+
